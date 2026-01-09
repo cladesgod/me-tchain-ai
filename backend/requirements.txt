@@ -1,0 +1,37 @@
+# =============================================
+# me.tchain.ai Backend Dependencies
+# =============================================
+# No pinned versions - always use latest
+
+# FastAPI & Server
+fastapi
+uvicorn[standard]
+python-multipart
+websockets
+
+# Pydantic
+pydantic
+pydantic-settings
+
+# LangChain & LLM
+langchain
+langchain-core
+langgraph
+langsmith
+langchain-openai
+
+# Database
+sqlalchemy
+alembic
+aiosqlite
+
+# HTTP Client
+httpx
+aiohttp
+
+# Utilities
+python-dotenv
+orjson
+
+# Logging
+structlog

@@ -1,0 +1,19 @@
+# =============================================
+# Development & Testing Dependencies
+# =============================================
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+httpx  # for TestClient
+
+# Linting & Formatting
+ruff
+black
+
+# Type Checking
+mypy
+
+# Pre-commit
+pre-commit

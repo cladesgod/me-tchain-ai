@@ -1,0 +1,318 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-950 text-gray-200 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+}
+
+@layer components {
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply btn text-white;
+    background-color: var(--persona-primary);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.1);
+  }
+  .btn-primary:active {
+    filter: brightness(0.9);
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-800 text-gray-200 hover:bg-gray-700 active:bg-gray-600;
+  }
+
+  .btn-outline {
+    @apply btn border-2 border-[var(--persona-primary)] text-[var(--persona-primary)] hover:bg-gray-800;
+  }
+
+  /* Card */
+  .card {
+    @apply rounded-xl bg-gray-900/50 backdrop-blur-sm border border-gray-800 p-6;
+  }
+
+  /* Section container */
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  .container-custom {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    color: var(--persona-primary);
+  }
+
+  /* Persona Theme Variables */
+  :root {
+    --persona-primary: #22d3ee; /* Default: Engineer cyan */
+    --persona-primary-rgb: 34, 211, 238;
+    --persona-bg: #0a0f1a;
+    --persona-bg-light: #111827;
+  }
+
+  /* Engineer Theme */
+  .theme-engineer {
+    --persona-primary: #22d3ee;
+    --persona-primary-rgb: 34, 211, 238;
+  }
+
+  /* Researcher Theme */
+  .theme-researcher {
+    --persona-primary: #8b5cf6;
+    --persona-primary-rgb: 139, 92, 246;
+  }
+
+  /* Speaker Theme */
+  .theme-speaker {
+    --persona-primary: #f97316;
+    --persona-primary-rgb: 249, 115, 22;
+  }
+
+  /* Educator Theme */
+  .theme-educator {
+    --persona-primary: #14b8a6;
+    --persona-primary-rgb: 20, 184, 166;
+  }
+
+  /* Persona glow effect */
+  .persona-glow {
+    box-shadow: 0 0 20px rgba(var(--persona-primary-rgb), 0.3),
+                0 0 40px rgba(var(--persona-primary-rgb), 0.2),
+                0 0 60px rgba(var(--persona-primary-rgb), 0.1);
+  }
+
+  .persona-text-glow {
+    color: var(--persona-primary);
+    text-shadow: 0 0 10px rgba(var(--persona-primary-rgb), 0.5),
+                 0 0 20px rgba(var(--persona-primary-rgb), 0.3);
+  }
+
+  /* Persona card hover effect */
+  @keyframes persona-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(var(--persona-primary-rgb), 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(var(--persona-primary-rgb), 0.4);
+    }
+  }
+
+  .persona-pulse {
+    animation: persona-pulse 2s ease-in-out infinite;
+  }
+
+  /* Ripple transition animation for persona selection */
+  @keyframes ripple-expand {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.9;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0;
+    }
+  }
+
+  .ripple-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 300vmax;
+    height: 300vmax;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .ripple-overlay.active {
+    animation: ripple-expand 900ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Path drawing animation for persona selection tree */
+  @keyframes draw-path {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 6px var(--glow-color)) drop-shadow(0 0 2px var(--glow-color));
+    }
+    50% {
+      filter: drop-shadow(0 0 14px var(--glow-color)) drop-shadow(0 0 6px var(--glow-color));
+    }
+  }
+
+  .path-draw {
+    stroke-dasharray: var(--path-length);
+    stroke-dashoffset: var(--path-length);
+    animation: draw-path var(--draw-duration, 300ms) ease-out var(--draw-delay, 0ms) forwards;
+  }
+
+  .path-draw.with-glow {
+    animation:
+      draw-path var(--draw-duration, 300ms) ease-out var(--draw-delay, 0ms) forwards,
+      glow-pulse 1.5s ease-in-out 600ms infinite;
+  }
+
+  /* Researcher: Floating particles animation */
+  @keyframes float-particle {
+    0% {
+      transform: translateY(0) scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(-8px) scale(1.2);
+      opacity: 1;
+    }
+  }
+
+  /* Speaker: Sound wave pulse */
+  @keyframes pulse-wave {
+    0%, 100% {
+      opacity: 1;
+      stroke-width: 3;
+    }
+    50% {
+      opacity: 0.6;
+      stroke-width: 4;
+    }
+  }
+
+  /* Educator: Warm gentle pulse */
+  @keyframes warm-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 6px currentColor);
+    }
+    50% {
+      filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 20px currentColor);
+    }
+  }
+
+  /* Engineer: Electric flicker */
+  @keyframes electric-flicker {
+    0%, 100% {
+      opacity: 1;
+    }
+    10% {
+      opacity: 0.8;
+    }
+    20% {
+      opacity: 1;
+    }
+    30% {
+      opacity: 0.9;
+    }
+    50% {
+      opacity: 1;
+    }
+    70% {
+      opacity: 0.85;
+    }
+    80% {
+      opacity: 1;
+    }
+  }
+
+  /* Speaker: Equalizer bounce */
+  @keyframes equalizer-bounce {
+    0% {
+      opacity: 0.5;
+      transform: scale(0.4, 1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2, 1);
+    }
+    100% {
+      opacity: 0.7;
+      transform: scale(0.6, 1);
+    }
+  }
+
+  /* Neural network background pattern */
+  .neural-bg {
+    background-image:
+      radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(217, 70, 239, 0.1) 0%, transparent 50%);
+  }
+
+  /* Grid pattern overlay */
+  .grid-overlay {
+    @apply bg-grid-pattern bg-grid;
+  }
+
+  /* Pulse glow animation for Change Character button */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 10px var(--persona-primary, #22d3ee)40,
+                  0 0 5px var(--persona-primary, #22d3ee)30;
+    }
+    50% {
+      box-shadow: 0 0 25px var(--persona-primary, #22d3ee)60,
+                  0 0 15px var(--persona-primary, #22d3ee)40;
+    }
+  }
+}
+
+@layer utilities {
+  /* Animation delays */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Text balance for better typography */
+  .text-balance {
+    text-wrap: balance;
+  }
+}

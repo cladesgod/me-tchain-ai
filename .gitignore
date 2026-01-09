@@ -1,0 +1,72 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+build/
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+docker-compose.override.yml
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build
+*.tsbuildinfo
+
+# Misc
+.cache/
+tmp/
+temp/
+
+# Claude Code
+.claude/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Large files (optional - if you want to use Git LFS later)
+# *.glb
