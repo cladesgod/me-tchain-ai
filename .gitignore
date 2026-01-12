@@ -70,3 +70,4 @@ Thumbs.db
 
 # Large files (optional - if you want to use Git LFS later)
 # *.glb
+*.glb.original

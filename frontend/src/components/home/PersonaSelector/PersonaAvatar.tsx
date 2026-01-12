@@ -23,7 +23,7 @@ interface AvatarModelProps {
 
 function AvatarModel({ url, isSelected, isHovered, yOffset }: AvatarModelProps) {
   const groupRef = useRef<Group>(null)
-  const { scene } = useGLTF(url)
+  const { scene } = useGLTF(url, '/draco/')
 
   // Subtle animation
   useFrame((state) => {
@@ -136,8 +136,8 @@ export function PersonaAvatar({ persona, isSelected, isHovered, glowColor }: Per
   )
 }
 
-// Preload all avatars for better performance
-useGLTF.preload('/assets/avatars/engineer.glb')
-useGLTF.preload('/assets/avatars/researcher.glb')
-useGLTF.preload('/assets/avatars/speaker.glb')
-useGLTF.preload('/assets/avatars/educator.glb')
+// Preload all avatars for better performance with Draco compression
+useGLTF.preload('/assets/avatars/engineer.glb', '/draco/')
+useGLTF.preload('/assets/avatars/researcher.glb', '/draco/')
+useGLTF.preload('/assets/avatars/speaker.glb', '/draco/')
+useGLTF.preload('/assets/avatars/educator.glb', '/draco/')
