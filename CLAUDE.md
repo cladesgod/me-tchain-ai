@@ -7,7 +7,7 @@ Bu dosya, Claude AI'ın bu projeyi anlaması ve etkili bir şekilde katkıda bul
 **me.tchain.ai** - Kazım Timuçin Utkan için kişisel AI portfolio sitesi.
 
 - **Amaç:** Yapay zeka araştırma mühendisi olarak profesyonel kimliği sergilemek
-- **Özellikler:** Transformer animasyonlu arka plan, AI chatbot, interaktif görselleştirmeler
+- **Özellikler:** AI chatbot, interaktif görselleştirmeler, persona-based content
 - **Hedef Kitle:** İşverenler ve profesyoneller
 
 ## Tech Stack
@@ -39,7 +39,7 @@ me-tchain-ai/
 │   │   ├── models/    # Domain models & Pydantic schemas
 │   │   ├── services/  # Business logic (chatbot, llm)
 │   │   └── repositories/  # Data access layer
-│   ├── data/          # Static content (persona, projects.json)
+│   ├── data/          # Static content (persona.md)
 │   └── tests/         # Unit, integration, e2e tests
 │
 ├── frontend/          # React frontend
@@ -86,16 +86,60 @@ docker-compose up -d              # Start all services
 docker-compose -f docker-compose.prod.yml up -d  # Production
 ```
 
+## Career Game (Ana Feature)
+
+İzometrik 2.5D oyun deneyimi - kullanıcılar timeline'da gezinip objelerle sohbet edebilir.
+
+**Route:** `/career-game`
+
+**Temel Dosyalar:**
+- `frontend/src/pages/CareerGame.tsx` - Ana oyun sayfası
+- `frontend/src/components/game/ObjectDetailPanel.tsx` - Side panel (info + chat modu)
+- `frontend/src/components/game/TimelineObject.tsx` - 3D timeline objeleri
+- `frontend/src/store/gameStore.ts` - Zustand state
+- `frontend/src/data/careerTimeline.ts` - Timeline objeleri
+- `frontend/src/hooks/useKeyboardControls.ts` - WASD/Arrow kontrolleri
+- `frontend/src/hooks/useObjectInteraction.ts` - Obje etkileşim logic
+- `backend/data/objects/` - Object persona markdown dosyaları
+
+**Object Persona Sistemi:**
+- Her timeline objesi (proje, tez, eğitim) kendi ağzından konuşur
+- WebSocket: `/api/v1/chat?object_id=xxx&object_title=xxx`
+- Persona dosyaları: `backend/data/objects/{object_id}.md`
+
+**Side Panel Chat Sistemi:**
+- `ObjectDetailPanel.tsx` iki mod: "info" ve "chat"
+- ESC tuşu: chat → info → panel kapat
+- Oyuncu uzaklaşınca panel otomatik kapanır (2x interaction radius)
+- Smooth typewriter buffer: tokenler akıcı yazılır (2 char/20ms)
+
+**GLB Model Sistemi:**
+- 3D modeller: `frontend/public/assets/game/objects/`
+- Whitelist: `TimelineObject.tsx` içinde `AVAILABLE_MODELS` set
+- Yeni model eklemek: dosyayı koy + whitelist'e ekle
+- Mevcut: `university.glb` (education objesi için)
+
+**Label Sistemi:**
+- `Billboard` + `Text` ile her zaman kameraya bakıyor
+- Label'lar obje ile birlikte scale oluyor
+- Objeler rotasyon yapmıyor (sadece floating + scale)
+
 ## Önemli Dosyalar
 
 | Dosya | Açıklama |
 |-------|----------|
 | `backend/app/main.py` | FastAPI app factory |
 | `backend/app/services/chatbot/agent.py` | LangGraph chatbot agent |
+| `backend/app/services/chatbot/object_persona_loader.py` | Object persona yükleyici |
 | `backend/data/persona.md` | Chatbot kişiliği ve bilgileri |
+| `backend/data/objects/` | Object persona markdown dosyaları |
 | `frontend/src/App.tsx` | React root component |
 | `frontend/src/components/chat/ChatWidget.tsx` | Chatbot UI |
-| `frontend/src/components/home/TransformerBackground.tsx` | 3D animasyon |
+| `frontend/src/components/game/ObjectDetailPanel.tsx` | Career Game side panel (info + chat) |
+| `frontend/src/components/game/TimelineObject.tsx` | 3D timeline objeleri |
+| `frontend/src/data/projects.ts` | Proje verileri |
+| `frontend/src/data/talks.ts` | Konuşma verileri |
+| `frontend/src/data/careerTimeline.ts` | Career Game objeleri |
 
 ## Kod Stilleri ve Kurallar
 
@@ -119,8 +163,6 @@ docker-compose -f docker-compose.prod.yml up -d  # Production
 GET  /api/v1/health          # Health check
 WS   /api/v1/chat            # WebSocket chatbot
 GET  /api/v1/contact         # Contact info (email, LinkedIn, GitHub, website)
-GET  /api/v1/blog            # List blog posts
-POST /api/v1/blog            # Create blog post (admin)
 ```
 
 ## Environment Variables
@@ -197,8 +239,9 @@ Persona detayları: `backend/data/persona.md`
 4. Test yaz
 
 ### İçerik güncellemek
-- Projeler: `frontend/src/data/projects.ts` veya `backend/data/content/projects.json`
+- Projeler: `frontend/src/data/projects.ts`
 - Konuşmalar: `frontend/src/data/talks.ts`
+- Yayınlar: `frontend/src/data/publications.ts`
 - Persona: `backend/data/persona.md`
 
 ## Dikkat Edilmesi Gerekenler
@@ -208,6 +251,89 @@ Persona detayları: `backend/data/persona.md`
 3. **Tests:** Her yeni feature için test yaz
 4. **Async:** Backend'de tüm I/O işlemleri async olmalı
 5. **Error Handling:** Custom exceptions kullan, generic catch yapma
+
+## ⚠️ Geçmişte Yapılan Hatalar (Tekrarlanmaması İçin)
+
+### 1. Three.js - Html Component Mavi Ekran Sorunu
+**Tarih:** 2026-01-14
+**Dosya:** `frontend/src/components/game/TimelineObject.tsx`
+
+**Sorun:** `@react-three/drei`'den `Html` component kullanıldığında TÜM 3D sahne mavi renkte render oldu.
+
+**Yanlış Kullanım:**
+```tsx
+import { Html } from '@react-three/drei'
+// ...
+<Html position={[0, 2, 0]} center>
+  <div className="...">Label</div>
+</Html>
+```
+
+**Çözüm:** `Html` yerine `Billboard` + `Text` kullan:
+```tsx
+import { Billboard, Text } from '@react-three/drei'
+// ...
+<Billboard position={[0, 2, 0]} follow={true}>
+  <Text fontSize={0.3} color="white">{label}</Text>
+</Billboard>
+```
+
+**Not:** `Html` component CSS DOM overlay oluşturur ve bazı durumlarda WebGL canvas ile çakışır. `Billboard` + `Text` tamamen 3D içinde kalır.
+
+---
+
+### 2. Environment Preset Yansıma Sorunu
+**Dosya:** `frontend/src/components/game/GameCanvas.tsx`
+
+**Sorun:** `<Environment preset="city" />` mavi gökyüzü yansımaları ekler ve metalik materyaller bunu yansıtır.
+
+**Çözüm:** Karanlık sahnelerde Environment preset kullanma veya daha koyu preset seç.
+
+---
+
+### 3. React State Mutation (Concurrent Mode) Sorunu
+**Tarih:** 2026-01-14
+**Dosya:** `frontend/src/components/game/ObjectDetailPanel.tsx`
+
+**Sorun:** Streaming chat'te mesajlar garip/duplicate geliyordu. Sebep: State mutation.
+
+**Yanlış Kullanım:**
+```tsx
+setMessages((prev) => {
+  const lastMsg = prev[prev.length - 1]
+  lastMsg.content += newContent  // ❌ Mutation!
+  return prev
+})
+```
+
+**Çözüm:** Her zaman yeni obje ve array oluştur:
+```tsx
+setMessages((prev) => {
+  const lastMsg = prev[prev.length - 1]
+  return [
+    ...prev.slice(0, -1),
+    { ...lastMsg, content: lastMsg.content + newContent }  // ✅ Yeni obje
+  ]
+})
+```
+
+---
+
+### 4. Keyboard Controls Input Capture Sorunu
+**Dosya:** `frontend/src/hooks/useKeyboardControls.ts`
+
+**Sorun:** Chat input'a yazarken karakter hareket ediyordu.
+
+**Çözüm:** Input/Textarea elementlerini kontrol et:
+```tsx
+const handleKeyDown = (event: KeyboardEvent) => {
+  const target = event.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    return  // Input'larda hareket tuşlarını yakala
+  }
+  // ... normal hareket logic
+}
+```
 
 ## MCP Araçları Kullanım Kuralları
 

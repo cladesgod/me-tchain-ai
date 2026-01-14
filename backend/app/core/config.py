@@ -44,8 +44,8 @@ class Settings(BaseSettings):
     AZURE_AI_ENDPOINT: str = ""
     AZURE_AI_CREDENTIAL: str = ""  # API key
     AZURE_API_VERSION: str = "2024-12-01-preview"
-    DEEPSEEK_MODEL_NAME: str = "DeepSeek-R1-0528"
-    DEEPSEEK_DEPLOYMENT_NAME: str = "DeepSeek-R1-0528"
+    DEEPSEEK_MODEL_NAME: str = "DeepSeek-V3.2"
+    DEEPSEEK_DEPLOYMENT_NAME: str = "DeepSeek-V3.2"
 
     # LangSmith (optional)
     LANGCHAIN_TRACING_V2: bool = True

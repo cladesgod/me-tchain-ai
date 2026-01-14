@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { cn } from '@/utils'
 import { PERSONAS, PersonaType, usePersonaStore } from '@/store'
 import { PersonaAvatar } from '@/components/home/PersonaSelector/PersonaAvatar'
@@ -418,280 +419,280 @@ export default function Landing() {
       {/* HERO SECTION - Full viewport height */}
       <section id="hero" className="min-h-screen flex flex-col items-center justify-center py-8 md:py-12 px-4">
 
-      {/* Header */}
-      <div className="text-center mb-4">
-        <p className="text-gray-400 text-lg mb-2">{t('landing.hello')}</p>
-        <h1 className="text-5xl md:text-7xl font-bold">
-          <span className="text-white">Timuçin </span>
-          <span
-            className="transition-colors duration-300"
-            style={{
-              color: isHovering ? PERSONAS[isHovering].color : 'var(--persona-primary)',
-            }}
-          >
-            Utkan
-          </span>
-        </h1>
-      </div>
+        {/* Header */}
+        <div className="text-center mb-4">
+          <p className="text-gray-400 text-lg mb-2">{t('landing.hello')}</p>
+          <h1 className="text-5xl md:text-7xl font-bold">
+            <span className="text-white">Timuçin </span>
+            <span
+              className="transition-colors duration-300"
+              style={{
+                color: isHovering ? PERSONAS[isHovering].color : 'var(--persona-primary)',
+              }}
+            >
+              Utkan
+            </span>
+          </h1>
+        </div>
 
-      {/* SVG + Cards Container - share same width for alignment */}
-      <div className="w-full max-w-6xl flex flex-col items-center overflow-visible">
-        {/* Branching Tree SVG - Hidden on mobile, dynamically aligned with cards */}
-        <div ref={svgContainerRef} className="relative w-full mb-0 hidden md:block">
-          <svg
-            className="w-full h-44"
-            viewBox="0 0 800 180"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="none"
-          >
-            {/* Base paths (gray, always visible) */}
-            {/* Main trunk */}
-            <path
-              d="M400 0 L400 50"
-              stroke="#4B5563"
-              strokeWidth="2"
-            />
-            {/* Horizontal branch - spans from first to last card dynamically */}
-            {positions.length === 4 && (
+        {/* SVG + Cards Container - share same width for alignment */}
+        <div className="w-full max-w-6xl flex flex-col items-center overflow-visible">
+          {/* Branching Tree SVG - Hidden on mobile, dynamically aligned with cards */}
+          <div ref={svgContainerRef} className="relative w-full mb-0 hidden md:block">
+            <svg
+              className="w-full h-44"
+              viewBox="0 0 800 180"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="none"
+            >
+              {/* Base paths (gray, always visible) */}
+              {/* Main trunk */}
               <path
-                d={`M${positions[0]} 50 L${positions[3]} 50`}
+                d="M400 0 L400 50"
                 stroke="#4B5563"
                 strokeWidth="2"
               />
-            )}
-            {/* Vertical branches - x positions from actual card centers */}
-            {positions.map((x, idx) => (
-              <path
-                key={`base-${idx}`}
-                d={`M${x} 50 L${x} 180`}
-                stroke="#4B5563"
-                strokeWidth="2"
-              />
-            ))}
-
-            {/* Highlighted path overlay when hovering or selected - with drawing animation */}
-            {(isHovering || selectedPersona) && positions.length === 4 && (() => {
-              const activePersona = isHovering || selectedPersona
-              if (!activePersona) return null
-              const hoverIndex = personaOrder.indexOf(activePersona)
-              const x = positions[hoverIndex] || 400
-              const color = PERSONAS[activePersona].color
-              const horizontalLength = Math.abs(400 - x)
-
-              return (
-                <g key={activePersona}>
-                  {/* Trunk: draws first (0-200ms) */}
-                  <PersonaPath
-                    persona={activePersona}
-                    d="M400 0 L400 50"
-                    color={color}
-                    pathLength={50}
-                    delay={0}
-                    duration={200}
-                  />
-                  {/* Horizontal: draws second (150-400ms) */}
-                  <PersonaPath
-                    persona={activePersona}
-                    d={`M400 50 L${x} 50`}
-                    color={color}
-                    pathLength={horizontalLength}
-                    delay={150}
-                    duration={250}
-                  />
-                  {/* Vertical: draws third (350-550ms) */}
-                  <PersonaPath
-                    persona={activePersona}
-                    d={`M${x} 50 L${x} 180`}
-                    color={color}
-                    pathLength={130}
-                    delay={350}
-                    duration={200}
-                  />
-                </g>
-              )
-            })()}
-
-            {/* Dots at the end of each branch - dynamically positioned */}
-            {positions.map((x, idx) => {
-              const persona = personaOrder[idx]
-              const isActive = isHovering === persona || selectedPersona === persona
-              return (
-                <circle
-                  key={`dot-${persona}`}
-                  cx={x}
-                  cy={180}
-                  r={isActive ? 6 : 4}
-                  fill={isActive ? PERSONAS[persona].color : '#4B5563'}
-                  style={{
-                    transition: 'all 0.3s ease',
-                    filter: isActive ? `drop-shadow(0 0 10px ${PERSONAS[persona].color})` : 'none',
-                  }}
+              {/* Horizontal branch - spans from first to last card dynamically */}
+              {positions.length === 4 && (
+                <path
+                  d={`M${positions[0]} 50 L${positions[3]} 50`}
+                  stroke="#4B5563"
+                  strokeWidth="2"
                 />
+              )}
+              {/* Vertical branches - x positions from actual card centers */}
+              {positions.map((x, idx) => (
+                <path
+                  key={`base-${idx}`}
+                  d={`M${x} 50 L${x} 180`}
+                  stroke="#4B5563"
+                  strokeWidth="2"
+                />
+              ))}
+
+              {/* Highlighted path overlay when hovering or selected - with drawing animation */}
+              {(isHovering || selectedPersona) && positions.length === 4 && (() => {
+                const activePersona = isHovering || selectedPersona
+                if (!activePersona) return null
+                const hoverIndex = personaOrder.indexOf(activePersona)
+                const x = positions[hoverIndex] || 400
+                const color = PERSONAS[activePersona].color
+                const horizontalLength = Math.abs(400 - x)
+
+                return (
+                  <g key={activePersona}>
+                    {/* Trunk: draws first (0-200ms) */}
+                    <PersonaPath
+                      persona={activePersona}
+                      d="M400 0 L400 50"
+                      color={color}
+                      pathLength={50}
+                      delay={0}
+                      duration={200}
+                    />
+                    {/* Horizontal: draws second (150-400ms) */}
+                    <PersonaPath
+                      persona={activePersona}
+                      d={`M400 50 L${x} 50`}
+                      color={color}
+                      pathLength={horizontalLength}
+                      delay={150}
+                      duration={250}
+                    />
+                    {/* Vertical: draws third (350-550ms) */}
+                    <PersonaPath
+                      persona={activePersona}
+                      d={`M${x} 50 L${x} 180`}
+                      color={color}
+                      pathLength={130}
+                      delay={350}
+                      duration={200}
+                    />
+                  </g>
+                )
+              })()}
+
+              {/* Dots at the end of each branch - dynamically positioned */}
+              {positions.map((x, idx) => {
+                const persona = personaOrder[idx]
+                const isActive = isHovering === persona || selectedPersona === persona
+                return (
+                  <circle
+                    key={`dot-${persona}`}
+                    cx={x}
+                    cy={180}
+                    r={isActive ? 6 : 4}
+                    fill={isActive ? PERSONAS[persona].color : '#4B5563'}
+                    style={{
+                      transition: 'all 0.3s ease',
+                      filter: isActive ? `drop-shadow(0 0 10px ${PERSONAS[persona].color})` : 'none',
+                    }}
+                  />
+                )
+              })}
+
+              {/* Center connection dot */}
+              {(() => {
+                const activeColor = isHovering || selectedPersona
+                return (
+                  <circle
+                    cx={400}
+                    cy={0}
+                    r={activeColor ? 5 : 3}
+                    fill={activeColor ? PERSONAS[activeColor].color : '#4B5563'}
+                    style={{
+                      transition: 'all 0.3s ease',
+                      filter: activeColor ? `drop-shadow(0 0 10px ${PERSONAS[activeColor].color})` : 'none',
+                    }}
+                  />
+                )
+              })()}
+            </svg>
+          </div>
+
+          {/* Character Selection - Negative margin to connect with SVG arrows */}
+          <div ref={cardsContainerRef} className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 w-full md:-mt-8 overflow-visible">
+            {personaOrder.map((personaId) => {
+              const persona = PERSONAS[personaId]
+              const isHovered = isHovering === personaId
+              const title = isEnglish ? persona.title : persona.titleTR
+
+              return (
+                <div
+                  key={personaId}
+                  data-card
+                  className="flex justify-center overflow-visible"
+                >
+                  <button
+                    onClick={() => handlePersonaSelect(personaId)}
+                    onMouseEnter={() => setHovering(personaId)}
+                    onMouseLeave={() => setHovering(null)}
+                    className={cn(
+                      'relative flex flex-col items-center py-4 px-2 md:py-6 md:px-4 transition-all duration-500 ease-out w-full',
+                      'focus:outline-none',
+                      isHovered ? 'scale-110 z-10' : 'scale-100',
+                      selectedPersona === personaId ? 'ring-2 ring-offset-2 ring-offset-gray-950' : ''
+                    )}
+                    style={{
+                      color: persona.color,
+                      // Add ring color for selected persona
+                      '--tw-ring-color': selectedPersona === personaId ? persona.color : undefined,
+                    } as React.CSSProperties}
+                  >
+                    {/* Light beam effect behind character on hover or selected */}
+                    {(() => {
+                      const isActiveBeam = isHovered || selectedPersona === personaId
+                      return (
+                        <div
+                          className={cn(
+                            'absolute inset-0 transition-all duration-500 rounded-3xl',
+                            isActiveBeam ? 'opacity-100' : 'opacity-0'
+                          )}
+                          style={{
+                            background: isActiveBeam
+                              ? `radial-gradient(ellipse 80% 60% at 50% 70%, ${persona.color}40 0%, ${persona.color}20 30%, transparent 70%)`
+                              : 'none',
+                            filter: isActiveBeam ? 'blur(8px)' : 'none',
+                          }}
+                        />
+                      )
+                    })()}
+
+                    {/* Vertical light beam */}
+                    {(() => {
+                      const isActiveBeam = isHovered || selectedPersona === personaId
+                      return (
+                        <div
+                          className={cn(
+                            'absolute left-1/2 -translate-x-1/2 w-16 md:w-24 transition-all duration-500',
+                            isActiveBeam ? 'opacity-100' : 'opacity-0'
+                          )}
+                          style={{
+                            top: '-20%',
+                            height: '140%',
+                            background: isActiveBeam
+                              ? `linear-gradient(to bottom, transparent 0%, ${persona.color}30 20%, ${persona.color}50 50%, ${persona.color}30 80%, transparent 100%)`
+                              : 'none',
+                            filter: 'blur(12px)',
+                          }}
+                        />
+                      )
+                    })()}
+
+
+                    {/* 3D Avatar - larger and filling space */}
+                    <div
+                      className={cn(
+                        'relative w-32 h-44 md:w-48 md:h-64 transition-transform duration-500',
+                        isHovered ? 'scale-105' : 'scale-100'
+                      )}
+                    >
+                      <PersonaAvatar
+                        persona={personaId}
+                        isSelected={false}
+                        isHovered={isHovered}
+                        glowColor={persona.color}
+                      />
+                    </div>
+
+                    {/* Title */}
+                    <h3
+                      className={cn(
+                        'relative text-lg md:text-xl font-bold transition-all duration-300 text-center mt-2',
+                        isHovered ? 'text-current' : 'text-gray-400'
+                      )}
+                      style={{
+                        textShadow: isHovered ? `0 0 20px ${persona.color}` : 'none'
+                      }}
+                    >
+                      {title}
+                    </h3>
+
+                  </button>
+                </div>
               )
             })}
-
-            {/* Center connection dot */}
-            {(() => {
-              const activeColor = isHovering || selectedPersona
-              return (
-                <circle
-                  cx={400}
-                  cy={0}
-                  r={activeColor ? 5 : 3}
-                  fill={activeColor ? PERSONAS[activeColor].color : '#4B5563'}
-                  style={{
-                    transition: 'all 0.3s ease',
-                    filter: activeColor ? `drop-shadow(0 0 10px ${PERSONAS[activeColor].color})` : 'none',
-                  }}
-                />
-              )
-            })()}
-          </svg>
+          </div>
         </div>
 
-        {/* Character Selection - Negative margin to connect with SVG arrows */}
-        <div ref={cardsContainerRef} className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 w-full md:-mt-8 overflow-visible">
-        {personaOrder.map((personaId) => {
-          const persona = PERSONAS[personaId]
-          const isHovered = isHovering === personaId
-          const title = isEnglish ? persona.title : persona.titleTR
-
-          return (
-            <div
-              key={personaId}
-              data-card
-              className="flex justify-center overflow-visible"
-            >
-              <button
-                onClick={() => handlePersonaSelect(personaId)}
-                onMouseEnter={() => setHovering(personaId)}
-                onMouseLeave={() => setHovering(null)}
-                className={cn(
-                  'relative flex flex-col items-center py-4 px-2 md:py-6 md:px-4 transition-all duration-500 ease-out w-full',
-                  'focus:outline-none',
-                  isHovered ? 'scale-110 z-10' : 'scale-100',
-                  selectedPersona === personaId ? 'ring-2 ring-offset-2 ring-offset-gray-950' : ''
-                )}
-                style={{
-                  color: persona.color,
-                  // Add ring color for selected persona
-                  '--tw-ring-color': selectedPersona === personaId ? persona.color : undefined,
-                } as React.CSSProperties}
-              >
-                {/* Light beam effect behind character on hover or selected */}
-                {(() => {
-                  const isActiveBeam = isHovered || selectedPersona === personaId
-                  return (
-                    <div
-                      className={cn(
-                        'absolute inset-0 transition-all duration-500 rounded-3xl',
-                        isActiveBeam ? 'opacity-100' : 'opacity-0'
-                      )}
-                      style={{
-                        background: isActiveBeam
-                          ? `radial-gradient(ellipse 80% 60% at 50% 70%, ${persona.color}40 0%, ${persona.color}20 30%, transparent 70%)`
-                          : 'none',
-                        filter: isActiveBeam ? 'blur(8px)' : 'none',
-                      }}
-                    />
-                  )
-                })()}
-
-                {/* Vertical light beam */}
-                {(() => {
-                  const isActiveBeam = isHovered || selectedPersona === personaId
-                  return (
-                    <div
-                      className={cn(
-                        'absolute left-1/2 -translate-x-1/2 w-16 md:w-24 transition-all duration-500',
-                        isActiveBeam ? 'opacity-100' : 'opacity-0'
-                      )}
-                      style={{
-                        top: '-20%',
-                        height: '140%',
-                        background: isActiveBeam
-                          ? `linear-gradient(to bottom, transparent 0%, ${persona.color}30 20%, ${persona.color}50 50%, ${persona.color}30 80%, transparent 100%)`
-                          : 'none',
-                        filter: 'blur(12px)',
-                      }}
-                    />
-                  )
-                })()}
-
-
-                {/* 3D Avatar - larger and filling space */}
-                <div
-                  className={cn(
-                    'relative w-32 h-44 md:w-48 md:h-64 transition-transform duration-500',
-                    isHovered ? 'scale-105' : 'scale-100'
-                  )}
-                >
-                  <PersonaAvatar
-                    persona={personaId}
-                    isSelected={false}
-                    isHovered={isHovered}
-                    glowColor={persona.color}
-                  />
-                </div>
-
-                {/* Title */}
-                <h3
-                  className={cn(
-                    'relative text-lg md:text-xl font-bold transition-all duration-300 text-center mt-2',
-                    isHovered ? 'text-current' : 'text-gray-400'
-                  )}
-                  style={{
-                    textShadow: isHovered ? `0 0 20px ${persona.color}` : 'none'
-                  }}
-                >
-                  {title}
-                </h3>
-
-              </button>
-            </div>
-          )
-        })}
-        </div>
-      </div>
-
-      {/* Dynamic Tagline - Below cards */}
-      <div className="h-12 md:h-16 mt-4 md:mt-6 flex items-center justify-center px-4">
-        <p
-          className={cn(
-            'text-lg md:text-xl text-center transition-all duration-300 max-w-2xl',
-            isHovering ? '' : 'text-gray-500 italic'
-          )}
-          style={isHovering ? { color: PERSONAS[isHovering].color } : undefined}
-        >
-          {isHovering
-            ? (isEnglish ? PERSONAS[isHovering].subtitle : PERSONAS[isHovering].subtitleTR)
-            : `"${t('landing.chooseCharacter')}"`}
-        </p>
-      </div>
-
-      {/* Scroll hint - only show if persona selected */}
-      {selectedPersona && (
-        <div
-          className="mt-6 md:mt-8 animate-bounce cursor-pointer"
-          onClick={scrollToContent}
-        >
-          <svg
-            className="w-6 h-6"
-            style={{ color: PERSONAS[selectedPersona].color }}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        {/* Dynamic Tagline - Below cards */}
+        <div className="h-12 md:h-16 mt-4 md:mt-6 flex items-center justify-center px-4">
+          <p
+            className={cn(
+              'text-lg md:text-xl text-center transition-all duration-300 max-w-2xl',
+              isHovering ? '' : 'text-gray-500 italic'
+            )}
+            style={isHovering ? { color: PERSONAS[isHovering].color } : undefined}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 14l-7 7m0 0l-7-7m7 7V3"
-            />
-          </svg>
+            {isHovering
+              ? (isEnglish ? PERSONAS[isHovering].subtitle : PERSONAS[isHovering].subtitleTR)
+              : `"${t('landing.chooseCharacter')}"`}
+          </p>
         </div>
-      )}
+
+        {/* Scroll hint - only show if persona selected */}
+        {selectedPersona && (
+          <div
+            className="mt-6 md:mt-8 animate-bounce cursor-pointer"
+            onClick={scrollToContent}
+          >
+            <svg
+              className="w-6 h-6"
+              style={{ color: PERSONAS[selectedPersona].color }}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
+            </svg>
+          </div>
+        )}
       </section>
 
       {/* CONTENT SECTION - Persona-specific content */}
@@ -738,6 +739,20 @@ export default function Landing() {
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* Career Game CTA */}
+                <div className="mt-12">
+                  <Link
+                    to="/career-game"
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 via-purple-500 to-orange-500 rounded-xl font-bold text-white hover:scale-105 transition-transform duration-200 shadow-lg hover:shadow-cyan-500/50"
+                  >
+                    <span className="text-2xl">🎮</span>
+                    <span>Explore My Career Journey</span>
+                  </Link>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Interactive 3D timeline - Walk through my career and chat with projects
+                  </p>
                 </div>
               </div>
             </div>

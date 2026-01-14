@@ -1,98 +1,123 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/utils'
 import { ChatMessage } from './ChatMessage'
 import { ChatInput } from './ChatInput'
+import { ChatHeader } from './ChatHeader'
+import { TypingIndicator } from './TypingIndicator'
+import { PersonaMiniAvatar } from './PersonaMiniAvatar'
 import { useChatStore } from '@/store/chatStore'
+import type { PersonaType } from '@/store/chatStore'
 
 export function ChatWidget() {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const { messages, isConnected, sendMessage } = useChatStore()
+  const { messages, isConnected, sendMessage, typingPersona } = useChatStore()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, typingPersona])
+
+  // Close panel on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [isOpen])
 
   return (
     <>
-      {/* Chat Toggle Button */}
+      {/* Edge-Mounted Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center',
-          'rounded-full bg-[var(--persona-primary)] text-white shadow-lg',
-          'hover:brightness-110 transition-all duration-200',
-          'hover:scale-105 active:scale-95'
+          'fixed right-0 top-1/2 -translate-y-1/2 z-40',
+          'bg-gradient-to-l from-gray-800/90 to-transparent',
+          'backdrop-blur-sm border-l-0 border-y border-r border-gray-700',
+          'rounded-l-xl py-6 px-3',
+          'hover:px-4 transition-all duration-200',
+          'group',
+          'shadow-lg'
         )}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
       >
-        {isOpen ? (
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        ) : (
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          </svg>
-        )}
+        {/* 4 Stacked Persona Avatars */}
+        <div className="flex flex-col items-center gap-1.5">
+          {(['engineer', 'researcher', 'speaker', 'educator'] as PersonaType[]).map((persona) => (
+            <PersonaMiniAvatar key={persona} persona={persona} size="xs" showOnline={false} />
+          ))}
+        </div>
 
-        {/* Notification dot when connected */}
-        {isConnected && !isOpen && (
-          <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-500 border-2 border-gray-950" />
+        {/* Vertical "CHAT" Text */}
+        <div
+          className="text-[10px] font-semibold tracking-wider text-gray-400 mt-3 group-hover:text-gray-300 transition-colors"
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+        >
+          CHAT
+        </div>
+
+        {/* Online Indicator Dot */}
+        {isConnected && (
+          <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
         )}
       </button>
 
-      {/* Chat Window */}
+      {/* Backdrop Overlay */}
       {isOpen && (
         <div
-          className={cn(
-            'fixed bottom-24 right-6 z-50 w-96 max-w-[calc(100vw-3rem)]',
-            'rounded-2xl bg-gray-900/95 backdrop-blur-sm shadow-2xl border border-gray-800',
-            'flex flex-col overflow-hidden',
-            'animate-in slide-in-from-bottom-4 fade-in duration-300'
-          )}
-          style={{ height: '500px' }}
-        >
-          {/* Header */}
-          <div className="flex items-center gap-3 border-b border-gray-800 bg-gray-800/50 px-4 py-3">
-            <div className="relative">
-              <div className="h-10 w-10 rounded-full bg-[var(--persona-primary)] flex items-center justify-center text-white font-semibold">
-                TU
-              </div>
-              <span
-                className={cn(
-                  'absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-gray-800',
-                  isConnected ? 'bg-green-500' : 'bg-gray-500'
-                )}
-              />
-            </div>
-            <div>
-              <h3 className="font-semibold text-white">{t('chat.title')}</h3>
-              <p className="text-xs text-gray-400">
-                {isConnected ? 'Online' : 'Connecting...'}
-              </p>
-            </div>
-          </div>
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 animate-in fade-in duration-300"
+          onClick={() => setIsOpen(false)}
+          aria-label="Close chat backdrop"
+        />
+      )}
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-950/50">
-            {messages.length === 0 ? (
-              <div className="text-center text-gray-400 text-sm py-8">
-                <p>{t('chat.welcome')}</p>
-              </div>
-            ) : (
-              messages.map((msg, idx) => (
+      {/* Side Panel */}
+      <div
+        className={cn(
+          'fixed right-0 top-0 h-full w-96 max-w-[90vw] z-50',
+          'bg-gray-900/95 backdrop-blur-md border-l border-gray-800',
+          'shadow-2xl flex flex-col',
+          'transform transition-transform duration-300 ease-out',
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        )}
+      >
+        {/* Header */}
+        <ChatHeader />
+
+        {/* Messages Container */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-950/50">
+          {messages.length === 0 ? (
+            <div className="text-center text-gray-400 text-sm py-8">
+              <p>{t('chat.welcome')}</p>
+              <p className="text-xs mt-2">Ask me anything about my work!</p>
+            </div>
+          ) : (
+            <>
+              {messages.map((msg) => (
                 <ChatMessage
-                  key={idx}
+                  key={msg.id}
                   content={msg.content}
                   role={msg.role}
+                  persona={msg.persona}
                   isStreaming={msg.isStreaming}
                 />
-              ))
-            )}
-          </div>
-
-          {/* Input */}
-          <ChatInput onSend={sendMessage} disabled={!isConnected} />
+              ))}
+              {/* Typing indicator */}
+              {typingPersona && <TypingIndicator persona={typingPersona} />}
+              <div ref={messagesEndRef} />
+            </>
+          )}
         </div>
-      )}
+
+        {/* Input */}
+        <ChatInput onSend={sendMessage} disabled={!isConnected} />
+      </div>
     </>
   )
 }

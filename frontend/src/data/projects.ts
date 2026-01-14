@@ -13,6 +13,15 @@ export interface Project {
   featured?: boolean
   // For persona filtering
   personas?: ('engineer' | 'researcher' | 'speaker' | 'educator')[]
+  // Detail page fields
+  fullDescriptionKey?: string
+  challengeKey?: string
+  solutionKey?: string
+  resultsKeys?: string[]
+  screenshots?: string[]
+  architectureDiagram?: string
+  learningsKeys?: string[]
+  relatedProjectIds?: string[]
 }
 
 export const projects: Project[] = [
@@ -27,6 +36,12 @@ export const projects: Project[] = [
     platform: 'GPT Store',
     featured: true,
     personas: ['engineer'],
+    fullDescriptionKey: 'projects.project1FullDesc',
+    challengeKey: 'projects.project1Challenge',
+    solutionKey: 'projects.project1Solution',
+    resultsKeys: ['projects.project1Result1', 'projects.project1Result2', 'projects.project1Result3'],
+    learningsKeys: ['projects.project1Learning1', 'projects.project1Learning2'],
+    relatedProjectIds: ['ects-transfer-system', 'ai-exam-grading'],
   },
   {
     id: 'ects-transfer-system',
@@ -35,7 +50,7 @@ export const projects: Project[] = [
     tech: ['LangChain', 'LangGraph', 'Semantic Search', 'FastAPI'],
     status: 'Beta',
     statsKey: 'projects.project2Stats',
-    link: null,
+    link: 'https://bi-ml.tchain.ai',
     platform: 'Web App',
     featured: true,
     personas: ['engineer', 'researcher'],
@@ -95,6 +110,18 @@ export const getFeaturedProjects = (): Project[] => {
 // Helper to get projects by persona
 export const getProjectsByPersona = (persona: 'engineer' | 'researcher' | 'speaker' | 'educator'): Project[] => {
   return projects.filter((p) => p.personas?.includes(persona))
+}
+
+// Helper to get project by ID
+export const getProjectById = (id: string): Project | undefined => {
+  return projects.find((p) => p.id === id)
+}
+
+// Helper to get related projects
+export const getRelatedProjects = (projectId: string): Project[] => {
+  const project = getProjectById(projectId)
+  if (!project?.relatedProjectIds) return []
+  return project.relatedProjectIds.map((id) => getProjectById(id)).filter((p): p is Project => p !== undefined)
 }
 
 // Status colors for UI

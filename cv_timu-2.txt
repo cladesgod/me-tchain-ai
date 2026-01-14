@@ -1,0 +1,91 @@
+                           K AZIM T IMUÇIN U TKAN                                             2
+                                                  AI Research Engineer
+                             Istanbul, Türkiye | (+90) 533 812 05 41 | timucinutkan@gmail.com
+                                                    LinkedIn 2 | tchain.ai 2
+
+E MPLOYMENT
+ R&D Researcher (TÜBİTAK 1505)                                                                      July 2025 – Present
+ Turkcell & Istanbul Technical University                                                             Istanbul, Türkiye
+    – Developed a high-performance ensemble learning system (XGBoost, LightGBM, CatBoost) for administrative tracking,
+      utilizing advanced feature engineering to significantly surpass human benchmarks.
+    – Architected an LLM-driven data correction pipeline to automate complex preprocessing and deployed the solution as a
+      scalable service for Turkcell’s pre-legal workflows.
+ Working Group Member                                                                                  Jan 2025 – Present
+ COST Association                                                                                       Remote / Europe
+   – Contributing to international research actions (CA22145) focused on Computational Techniques in Tabletop Games Her-
+     itage and AI-driven analysis of game dynamics.
+ Lecturer (Digital Game Design)                                                                        Oct 2024 – Present
+ Istinye University                                                                                       Istanbul, Türkiye
+     – Delivering advanced undergraduate courses on Intelligent Agents and Machine Learning, teaching architectures for game
+       AI and autonomous decision-making systems.
+ AI R&D Team Lead                                                                                   Aug 2024 – July 2025
+ MLPCare                                                                                                Istanbul, Türkiye
+   – Architected a RAG-based machine translation pipeline using LangChain and OpenAI models, integrating a human-in-
+     the-loop feedback mechanism that iteratively improved translation quality.
+   – Deployed the system via Docker and FastAPI, reducing translation latency from days to real-time (seconds) and cutting
+     operational costs by ∼99% compared to external vendors.
+   – Engineered an ensemble learning framework (XGBoost & Random Forest) for disease prediction (TÜBİTAK 1501),
+     handling end-to-end data preprocessing and feature selection.
+   – Implemented an LSTM-based deep learning model for time-series forecasting of hospital revenue and patient inflow
+     (TÜBİTAK 1507), optimizing resource allocation strategies.
+ Research Assistant                                                                                 Aug 2022 – July 2024
+ Istinye University                                                                                         Istanbul, Türkiye
+     – Developed ’Company Agent Swarm’ using AutoGen framework, designing a multi-agent orchestration layer for automated
+       email management and query resolution.
+     – Engineered automated content generation agents for social media platforms using LLMs, deploying bots that synthesized
+       real-time news feeds with high relevance.
+     – Assisted in the delivery of undergraduate data science and programming courses, mentoring students on software projects
+       and managing laboratory sessions.
+ Research Engineer                                                                                 Dec 2022 – March 2024
+ Istinye University MIS Lab                                                                                Istanbul, Türkiye
+     – Architected a deterministic simulation workflow, implementing a custom state-transition logic (Observation → State →
+       Response) to model audience psychology.
+     – Conducted a large-scale visual bias analysis on 6,000+ synthetic images; co-authored findings in CRC Press titled ”Ex
+       Machine, Next Machine, and Still Biased Machine”.
+     – Engineered a semantic category matching algorithm for Entegra Bilişim, achieving 10x higher accuracy in cross-market
+       taxonomy alignment through automated feature extraction.
+ Data Scientist                                                                                      Sep 2021 – May 2022
+ Datafirst.store                                                                                           Istanbul, Türkiye
+   – Architected the sales forecasting infrastructure for e-bebek, optimizing inventory management using XGBoost and Light-
+       GBM ensembles.
+    – Implemented stress detection algorithms for a gamified Apple Watch application, analyzing biometric signals to classify
+       user reactions in pediatric groups.
+    – Developed a license plate recognition pipeline using OpenCV and Tesseract OCR, applying classical computer vision
+       techniques for efficient edge processing.
+S ELECTED P ROJECTS
+ APA 7 Citation Helper (tchain.ai): Engineered a specialized GPT agent for automated academic citation formatting, currently
+ serving 50K+ users with a 4.3/5.0 satisfaction rating on the GPT Store 2.
+ Automated ECTS Transfer System (Beta): Developing an autonomous agentic framework using LangChain and LangGraph,
+ utilizing semantic similarity to match cross-university curriculums with high precision.
+ AI-Powered Exam Grading Pipeline (Beta): Architecting an automated assessment workflow utilizing LangSmith for evalua-
+ tion and LangGraph for orchestration, ensuring consistent grading standards.
+
+E DUCATION
+ Ph.D. in Industrial Engineering                                                                                2024 – Present
+ Istanbul Technical University                                                                      Istanbul, Türkiye
+     – Focus: Autonomy of Large Language Model Agents (LLMs for Automated Personalized Feedback 2).
+ M.Sc. in Artificial Intelligence Engineering                                                                               2024
+ Üsküdar University                                                                                           Istanbul, Türkiye
+    – Thesis: Investigating the efficacy of Large Language Models in automating B2B communications 2.
+ B.Sc. in Mechanical Engineering                                                                                            2020
+ Trakya University                                                                                               Edirne, Türkiye
+    – Focus: Robotic applications and interdisciplinary AI integration.
+
+I NVITED TALKS
+ ”AI Applications in Migration Studies” – UNESCO MOST School & Istinye Univ.                                          July 2025
+ ”Can Artificial Intelligence Fall in Love?” – Uludağ University                                                     June 2025
+ ”Next-Generation Artificial Intelligence in Games” – Gedik University                                                May 2025
+ ”Can Artificial Intelligence Replace Humans?” – Atatürk University                                                   Dec 2024
+ ”A Mirror to Humanity: Artificial Intelligence” – Trakya University                                                   Dec 2024
+ ”New Borders of Humanity” – Istinye University                                                                       Nov 2024
+L ANGUAGES AND T ECHNOLOGIES
+ Tech Stack: Python, SQL, LangChain, LangGraph, LangSmith, AutoGen, OpenAI API, PyTorch, TensorFlow, Scikit-Learn,
+ FastAPI, Docker
+ Languages: Turkish (Native), English (C2 - Proficient)
+
+P UBLICATIONS
+ Utkan, K. T., & Öztayşi, B. (2025). Large Language Models for Automated Personalized Feedback in SQL Education 2. IN-
+ FUS.
+ Utkan, K. T., & Ozdemir, S. (2024). GPT-based Audience Attention and Emotion Analysis 2. CRC Press.
+ Unal, C., ..., Utkan, K. T., et al. (2024). Ex Machine, Next Machine, and Still Biased Machine 2. CRC Press.
+
