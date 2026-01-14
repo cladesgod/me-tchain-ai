@@ -90,6 +90,8 @@ docker-compose -f docker-compose.prod.yml up -d  # Production
 
 İzometrik 2.5D oyun deneyimi - kullanıcılar timeline'da gezinip objelerle sohbet edebilir.
 
+📋 **Detaylı Plan:** [docs/CAREER_GAME_PLAN.md](docs/CAREER_GAME_PLAN.md)
+
 **Route:** `/career-game`
 
 **Temel Dosyalar:**
