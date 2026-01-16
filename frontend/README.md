@@ -6,8 +6,11 @@ React frontend for the AI portfolio website.
 
 - Modern React 18 with TypeScript
 - Tailwind CSS for styling
-- Three.js for 3D animations (transformer background)
-- Real-time chat widget with WebSocket
+- Three.js + React Three Fiber for 3D (Career Game, avatars)
+- Career Game - Interactive isometric timeline experience
+- Real-time chat widget with WebSocket (streaming)
+- i18n support (English/Turkish)
+- Persona-based content system
 - Responsive design
 
 ## Quick Start
@@ -31,14 +34,22 @@ pnpm preview
 ```
 frontend/
 ├── src/
-│   ├── components/    # UI components
+│   ├── components/    # UI components (by feature)
+│   │   ├── chat/      # Chat widget
+│   │   ├── game/      # Career Game (3D)
+│   │   ├── home/      # Landing page, persona selector
+│   │   ├── layout/    # Navbar, Footer
+│   │   └── ui/        # Reusable UI components
 │   ├── pages/         # Page components
 │   ├── hooks/         # Custom React hooks
-│   ├── store/         # Zustand state management
+│   ├── store/         # Zustand state (game, chat, persona)
 │   ├── services/      # API client
 │   ├── types/         # TypeScript types
+│   ├── data/          # Static data (projects, talks, timeline)
+│   ├── i18n/          # Translations (en/tr)
 │   └── utils/         # Utility functions
-├── public/            # Static assets
+├── public/
+│   └── assets/        # 3D models (GLB), avatars, images
 └── tests/             # Test files
 ```
 

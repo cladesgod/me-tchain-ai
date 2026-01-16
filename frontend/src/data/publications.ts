@@ -28,6 +28,7 @@ export const publications: Publication[] = [
     typeKey: 'publications.pub1Type',
     abstractKey: 'publications.pub1Abstract',
     type: 'Conference Paper',
+    doi: 'https://doi.org/10.1007/978-3-031-97992-7_70',
   },
   {
     id: 'crc-2024-gpt-audience',
@@ -38,6 +39,7 @@ export const publications: Publication[] = [
     typeKey: 'publications.pub2Type',
     abstractKey: 'publications.pub2Abstract',
     type: 'Book Chapter',
+    doi: 'https://doi.org/10.1201/9781003483571-10',
   },
   {
     id: 'crc-2024-bias',
@@ -48,6 +50,7 @@ export const publications: Publication[] = [
     typeKey: 'publications.pub3Type',
     abstractKey: 'publications.pub3Abstract',
     type: 'Book Chapter',
+    doi: 'https://doi.org/10.1201/9781003483571-14',
   },
 ]
 

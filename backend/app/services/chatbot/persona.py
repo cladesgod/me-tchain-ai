@@ -13,6 +13,7 @@ logger = get_logger(__name__)
 
 # Default persona path
 PERSONA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "persona.md"
+PERSONAS_DIR = Path(__file__).parent.parent.parent.parent / "data" / "personas"
 
 
 class PersonaLoader:
@@ -95,3 +96,33 @@ persona_loader = PersonaLoader()
 def get_persona() -> str:
     """Get the loaded persona content."""
     return persona_loader.load()
+
+
+def load_persona_by_type(persona_type: str) -> str:
+    """
+    Load a specific persona file by type.
+
+    Args:
+        persona_type: One of 'engineer', 'researcher', 'speaker', 'educator'
+
+    Returns:
+        Persona content as string
+
+    Raises:
+        FileNotFoundError: If persona file doesn't exist
+    """
+    persona_file = PERSONAS_DIR / f"{persona_type}.md"
+
+    try:
+        if persona_file.exists():
+            content = persona_file.read_text(encoding="utf-8")
+            logger.info("persona_loaded_by_type", type=persona_type, path=str(persona_file))
+            return content
+        else:
+            logger.error("persona_file_not_found", type=persona_type, path=str(persona_file))
+            # Fallback to default persona
+            return persona_loader.load()
+    except Exception as e:
+        logger.error("persona_load_by_type_error", type=persona_type, error=str(e))
+        # Fallback to default persona
+        return persona_loader.load()

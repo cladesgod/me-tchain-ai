@@ -37,7 +37,7 @@ export const talks: Talk[] = [
     venueKey: 'talks.talk1Venue',
     dateKey: 'talks.talk1Date',
     typeKey: 'talks.talk1Type',
-    type: 'Workshop',
+    type: 'Keynote',
     location: {
       lat: 41.1067,
       lng: 29.0237,
@@ -63,7 +63,7 @@ export const talks: Talk[] = [
     venueKey: 'talks.talk3Venue',
     dateKey: 'talks.talk3Date',
     typeKey: 'talks.talk3Type',
-    type: 'Talk',
+    type: 'Workshop',
     location: {
       lat: 40.9632,
       lng: 29.2494,
@@ -76,7 +76,7 @@ export const talks: Talk[] = [
     venueKey: 'talks.talk4Venue',
     dateKey: 'talks.talk4Date',
     typeKey: 'talks.talk4Type',
-    type: 'Panel',
+    type: 'Keynote',
     location: {
       lat: 39.9042,
       lng: 41.2679,
@@ -89,7 +89,7 @@ export const talks: Talk[] = [
     venueKey: 'talks.talk5Venue',
     dateKey: 'talks.talk5Date',
     typeKey: 'talks.talk5Type',
-    type: 'Talk',
+    type: 'Keynote',
     location: {
       lat: 41.6818,
       lng: 26.5623,
@@ -102,11 +102,24 @@ export const talks: Talk[] = [
     venueKey: 'talks.talk6Venue',
     dateKey: 'talks.talk6Date',
     typeKey: 'talks.talk6Type',
-    type: 'Talk',
+    type: 'Workshop',
     location: {
       lat: 41.1067,
       lng: 29.0237,
       city: 'Istanbul',
+    },
+  },
+  {
+    id: 'erzincan-2025',
+    titleKey: 'talks.talk7Title',
+    venueKey: 'talks.talk7Venue',
+    dateKey: 'talks.talk7Date',
+    typeKey: 'talks.talk7Type',
+    type: 'Keynote',
+    location: {
+      lat: 39.7500,
+      lng: 39.5000,
+      city: 'Erzincan',
     },
   },
 ]
@@ -128,6 +141,22 @@ export const courses: Course[] = [
     periodKey: 'talks.course2Period',
     semester: 'Fall 2024',
   },
+  {
+    id: 'basic-programming',
+    courseKey: 'talks.course3Name',
+    uniKey: 'talks.course3Uni',
+    deptKey: 'talks.course3Dept',
+    periodKey: 'talks.course3Period',
+    semester: 'Fall 2024, Spring 2025',
+  },
+  {
+    id: 'gedik-ai',
+    courseKey: 'talks.course4Name',
+    uniKey: 'talks.course4Uni',
+    deptKey: 'talks.course4Dept',
+    periodKey: 'talks.course4Period',
+    semester: 'Spring 2026',
+  },
 ]
 
 // Type colors for UI
@@ -141,7 +170,14 @@ export const talkTypeColors: Record<TalkType, string> = {
 
 // Stats
 export const talkStats = {
+  keynotes: 5,
+  workshops: 2,
   universities: 6,
-  totalTalks: 6,
+  totalTalks: 7,
   studentsReached: '500+',
+}
+
+export const courseStats = {
+  courses: 4,
+  universities: 2,
 }

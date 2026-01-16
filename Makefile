@@ -2,7 +2,7 @@
 # me.tchain.ai Makefile
 # =============================================
 
-.PHONY: help install dev build test lint clean docker-up docker-down
+.PHONY: help install dev build test lint clean
 
 # Default target
 help:
@@ -13,8 +13,6 @@ help:
 	@echo "  make test        - Run all tests"
 	@echo "  make lint        - Run linters"
 	@echo "  make clean       - Clean build artifacts"
-	@echo "  make docker-up   - Start Docker containers"
-	@echo "  make docker-down - Stop Docker containers"
 
 # ---------------------------------------------
 # Installation
@@ -35,7 +33,7 @@ dev:
 	@make -j2 dev-backend dev-frontend
 
 dev-backend:
-	cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 
 dev-frontend:
 	cd frontend && pnpm dev
@@ -79,21 +77,6 @@ lint-frontend:
 format:
 	cd backend && ruff format .
 	cd frontend && pnpm format
-
-# ---------------------------------------------
-# Docker
-# ---------------------------------------------
-docker-up:
-	docker-compose up -d
-
-docker-down:
-	docker-compose down
-
-docker-build:
-	docker-compose build
-
-docker-logs:
-	docker-compose logs -f
 
 # ---------------------------------------------
 # Database

@@ -10,9 +10,27 @@ export function SpeakerContent() {
   return (
     <>
       {/* Stats Section */}
-      <section className="py-8 px-4">
+      <section className="py-4 px-4">
         <div className="container-custom">
           <div className="flex justify-center gap-8 md:gap-12">
+            <div className="text-center">
+              <div
+                className="text-3xl md:text-4xl font-bold"
+                style={{ color: persona.color }}
+              >
+                {talkStats.keynotes}
+              </div>
+              <div className="text-sm text-gray-400">{t('talks.keynotes')}</div>
+            </div>
+            <div className="text-center">
+              <div
+                className="text-3xl md:text-4xl font-bold"
+                style={{ color: persona.color }}
+              >
+                {talkStats.workshops}
+              </div>
+              <div className="text-sm text-gray-400">{t('talks.workshops')}</div>
+            </div>
             <div className="text-center">
               <div
                 className="text-3xl md:text-4xl font-bold"
@@ -22,32 +40,14 @@ export function SpeakerContent() {
               </div>
               <div className="text-sm text-gray-400">{t('talks.universities')}</div>
             </div>
-            <div className="text-center">
-              <div
-                className="text-3xl md:text-4xl font-bold"
-                style={{ color: persona.color }}
-              >
-                {talkStats.totalTalks}
-              </div>
-              <div className="text-sm text-gray-400">{t('talks.totalTalks')}</div>
-            </div>
-            <div className="text-center">
-              <div
-                className="text-3xl md:text-4xl font-bold"
-                style={{ color: persona.color }}
-              >
-                {talkStats.studentsReached}
-              </div>
-              <div className="text-sm text-gray-400">{t('talks.studentsReached')}</div>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Talks Section */}
-      <section className="py-16 px-4">
+      <section className="py-10 px-4">
         <div className="container-custom">
-          <h2 className="text-3xl font-bold text-white mb-8">
+          <h2 className="text-3xl font-bold text-white mb-6">
             {t('talks.invitedTalks')}
           </h2>
 
@@ -100,12 +100,12 @@ export function SpeakerContent() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4">
+      <section className="py-10 px-4">
         <div className="container-custom text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-white mb-3">
             {t('home.letsWork')}
           </h2>
-          <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+          <p className="text-gray-400 mb-6 max-w-xl mx-auto">
             {t('home.letsWorkDesc')}
           </p>
           <Link

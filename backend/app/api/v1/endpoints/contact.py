@@ -34,7 +34,7 @@ async def get_contact_info() -> ContactInfo:
 
     return ContactInfo(
         email=settings.CONTACT_EMAIL,
-        linkedin="https://linkedin.com/in/timucinutkan",
-        github="https://github.com/timucinutkan",
+        linkedin="https://www.linkedin.com/in/timuçin-utkan-602504167/",
+        github="https://github.com/cladesgod",
         website="https://tchain.ai",
     )

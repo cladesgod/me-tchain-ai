@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { PERSONAS } from '@/store'
-import { courses } from '@/data'
+import { courses, courseStats, educatorTimeline } from '@/data'
+import { PersonaTimeline } from '../PersonaTimeline'
 
 export function EducatorContent() {
   const { t, i18n } = useTranslation()
@@ -10,10 +11,39 @@ export function EducatorContent() {
 
   return (
     <>
-      {/* Courses Section */}
-      <section className="py-16 px-4">
+      {/* Stats Section */}
+      <section className="py-4 px-4">
         <div className="container-custom">
-          <h2 className="text-3xl font-bold text-white mb-8">
+          <div className="flex justify-center gap-8 md:gap-12">
+            <div className="text-center">
+              <div
+                className="text-3xl md:text-4xl font-bold"
+                style={{ color: persona.color }}
+              >
+                {courseStats.courses}
+              </div>
+              <div className="text-sm text-gray-400">{t('talks.coursesCount')}</div>
+            </div>
+            <div className="text-center">
+              <div
+                className="text-3xl md:text-4xl font-bold"
+                style={{ color: persona.color }}
+              >
+                {courseStats.universities}
+              </div>
+              <div className="text-sm text-gray-400">{t('talks.universities')}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Timeline Section */}
+      <PersonaTimeline items={educatorTimeline} color={persona.color} />
+
+      {/* Courses Section */}
+      <section className="py-10 px-4">
+        <div className="container-custom">
+          <h2 className="text-3xl font-bold text-white mb-6">
             {t('talks.teaching')}
           </h2>
 
@@ -48,7 +78,7 @@ export function EducatorContent() {
       </section>
 
       {/* Teaching Philosophy */}
-      <section className="py-16 px-4 bg-gray-900/30">
+      <section className="py-10 px-4 bg-gray-900/30">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl font-bold text-white mb-6">
@@ -64,12 +94,12 @@ export function EducatorContent() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4">
+      <section className="py-10 px-4">
         <div className="container-custom text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-white mb-3">
             {t('home.letsWork')}
           </h2>
-          <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+          <p className="text-gray-400 mb-6 max-w-xl mx-auto">
             {t('home.letsWorkDesc')}
           </p>
           <Link
