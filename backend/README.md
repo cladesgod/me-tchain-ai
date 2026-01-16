@@ -4,10 +4,12 @@ FastAPI backend for the AI portfolio website.
 
 ## Features
 
-- AI Chatbot with WebSocket support
-- Contact form with email notifications
+- AI Chatbot with WebSocket support (streaming responses)
+- Object Persona System (Career Game objelerinin kendi ağzından konuşması)
+- Contact API endpoint
 - RESTful API with OpenAPI documentation
 - LangChain + LangGraph integration
+- DeepSeek LLM via Microsoft AI Foundry
 - Structured logging with structlog
 
 ## Quick Start
@@ -38,12 +40,17 @@ uvicorn app.main:app --reload --port 8000
 ```
 backend/
 ├── app/
-│   ├── api/           # API endpoints
+│   ├── api/           # API endpoints (versioned)
 │   ├── core/          # Config, logging, exceptions
 │   ├── models/        # Pydantic schemas
 │   ├── services/      # Business logic
+│   │   ├── chatbot/   # LangGraph agent, persona loader
+│   │   └── llm/       # LLM integrations (DeepSeek)
 │   └── main.py        # FastAPI app
-├── data/              # Static data (persona, content)
+├── data/
+│   ├── persona.md     # Ana chatbot kişiliği
+│   ├── personas/      # Persona varyasyonları
+│   └── objects/       # Object persona markdown dosyaları
 └── tests/             # Test files
 ```
 
@@ -65,6 +72,7 @@ pytest --cov=app tests/
 See `.env.example` for all available configuration options.
 
 Key variables:
-- `AZURE_OPENAI_ENDPOINT`: Azure OpenAI endpoint
-- `AZURE_OPENAI_API_KEY`: API key
-- `LANGCHAIN_API_KEY`: LangSmith API key
+- `AZURE_AI_ENDPOINT`: Microsoft AI Foundry endpoint
+- `AZURE_AI_CREDENTIAL`: API credential
+- `DEEPSEEK_MODEL_NAME`: DeepSeek model name
+- `LANGCHAIN_API_KEY`: LangSmith API key (for tracing)

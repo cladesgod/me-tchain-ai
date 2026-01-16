@@ -1,15 +1,14 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { Layout } from './components/layout'
-import { ChatWidget } from './components/chat'
+// import { ChatWidget } from './components/chat' // temporarily hidden
 
 // Lazy load pages for code splitting
 const Landing = lazy(() => import('./pages/Landing'))
-const About = lazy(() => import('./pages/About'))
-const Projects = lazy(() => import('./pages/Projects'))
 const Talks = lazy(() => import('./pages/Talks'))
 const Publications = lazy(() => import('./pages/Publications'))
 const Contact = lazy(() => import('./pages/Contact'))
+const Resume = lazy(() => import('./pages/Resume'))
 const CareerGame = lazy(() => import('./pages/CareerGame'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
@@ -42,10 +41,9 @@ function App() {
             <Route path="/" element={<Landing />} />
 
             {/* Secondary pages */}
-            <Route path="/about" element={<About />} />
-            <Route path="/projects" element={<Projects />} />
             <Route path="/talks" element={<Talks />} />
             <Route path="/publications" element={<Publications />} />
+            <Route path="/resume" element={<Resume />} />
             <Route path="/contact" element={<Contact />} />
 
             {/* 404 */}
@@ -54,8 +52,8 @@ function App() {
         </Suspense>
       </Layout>
 
-      {/* Floating Chat Widget */}
-      <ChatWidget />
+      {/* Floating Chat Widget - temporarily hidden */}
+      {/* <ChatWidget /> */}
     </>
   )
 }

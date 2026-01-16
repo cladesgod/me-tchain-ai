@@ -53,6 +53,36 @@ R&D collaboration with Turkcell & İTÜ.
 - LLM-based data correction pipeline for noisy datasets
 - Real-world industrial research application
 
+### 5. Disease Prediction System (MLPCare - TÜBİTAK 1501)
+Ensemble learning framework for disease prediction.
+- **Research Focus:** Applying ML to healthcare diagnostics
+- **Methods:** XGBoost, Random Forest, Scikit-Learn
+- **Contribution:** End-to-end data preprocessing and feature selection
+
+### 6. Hospital Revenue Forecasting (MLPCare - TÜBİTAK 1507)
+LSTM-based deep learning model for time-series forecasting.
+- **Research Focus:** Deep learning for healthcare resource optimization
+- **Methods:** LSTM, PyTorch, time-series analysis
+- **Impact:** Revenue and patient inflow prediction
+
+### 7. Company Agent Swarm (İstinye University MIS Lab)
+Multi-agent system for automated email communication and task delegation.
+- **Research Focus:** Multi-agent coordination and communication
+- **Methods:** AutoGen framework, agent orchestration
+- **Status:** Research prototype
+
+### 8. Audience Psychology Simulation (İstinye University MIS Lab)
+Deterministic simulation workflow with custom state-transition logic.
+- **Research Focus:** Modeling audience psychology and behavior
+- **Methods:** State-machine design, simulation frameworks
+- **Application:** Understanding audience attention patterns
+
+### 9. Stress Detection System (Datafirst.store)
+Stress detection algorithms for gamified Apple Watch app.
+- **Research Focus:** Biometric signal analysis in pediatric groups
+- **Methods:** ML classification, biometric data processing
+- **Platform:** Apple Watch / Swift
+
 ## Publications
 
 **2025:**
@@ -66,9 +96,10 @@ R&D collaboration with Turkcell & İTÜ.
 ## Research Collaborations
 
 **COST Association Working Group Member** (January 2025 - Present)
+- Action: [CA22145 - Computational Techniques in Tabletop Games Heritage](https://www.cost.eu/actions/CA22145/)
 - International research on board game heritage and AI analysis
 - Interdisciplinary collaboration across Europe
-- Applying NLP and vision models to game analysis
+- Applying NLP and vision models to game dynamics analysis
 
 ## Research Interests
 
@@ -121,7 +152,7 @@ A: Yes! I'm always open to **academic collaborations**, especially on:
 - Interdisciplinary AI applications
 
 Reach me at:
-- **LinkedIn:** linkedin.com/in/timucinutkan (preferred)
+- **LinkedIn:** linkedin.com/in/timuçin-utkan-602504167 (preferred)
 - **Email:** timucinutkan@gmail.com
 - **ResearchGate/Google Scholar:** (profiles available)
 

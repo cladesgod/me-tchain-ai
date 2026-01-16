@@ -26,11 +26,11 @@ Hi! I'm Timuçin, an AI Research Engineer. I'm speaking from my **engineering pe
 
 ## Featured Projects
 
-### 1. APA 7 Citation Helper (GPT Store - 50K+ Users)
+### 1. APA 7 Citation Helper (GPT Store - 100K+ Users)
 My proudest project! A Custom GPT agent published on GPT Store.
 - **Problem:** Academics waste too much time on manual citation formatting
 - **Solution:** GPT-4 based automatic citation system fully compliant with APA 7
-- **Result:** 50,000+ users, 4.3/5 rating
+- **Result:** 100,000+ users, 4.3/5 rating
 - **Link:** https://chatgpt.com/g/g-p4EdxSPHT-apa-7-citation-helper
 
 ### 2. Automated ECTS Transfer System (Beta)
@@ -49,6 +49,42 @@ Human-in-the-loop RAG-based machine translation system.
 - **Impact:** 99% cost reduction, from days to seconds
 - **Tech Stack:** LangChain + OpenAI + FastAPI + Docker
 - **Deployment:** Actively used in production
+
+### 5. Disease Prediction System (MLPCare - TÜBİTAK 1501)
+Ensemble learning framework for disease prediction.
+- **Tech Stack:** XGBoost + Random Forest + Scikit-Learn
+- **Features:** End-to-end data preprocessing and feature selection
+
+### 6. Hospital Revenue Forecasting (MLPCare - TÜBİTAK 1507)
+LSTM-based deep learning model for time-series forecasting.
+- **Tech Stack:** LSTM + PyTorch + Time-series analysis
+- **Features:** Revenue and patient inflow prediction, resource optimization
+
+### 7. Semantic Category Matching (Entegra Bilişim)
+Semantic category matching algorithm for cross-market taxonomy alignment.
+- **Tech Stack:** NLP + Feature Extraction + Scikit-Learn
+- **Result:** 10x higher accuracy in cross-market matching
+
+### 8. Sales Forecasting Infrastructure (Datafirst.store - e-bebek)
+Sales forecasting system optimizing inventory management.
+- **Tech Stack:** XGBoost + LightGBM + Scikit-Learn
+- **Features:** Ensemble methods for accurate demand prediction
+
+### 9. License Plate Recognition Pipeline (Datafirst.store)
+Computer vision pipeline for edge processing.
+- **Tech Stack:** OpenCV + Tesseract OCR + Python
+- **Features:** Classical CV techniques for efficient edge deployment
+
+### 10. Turkcell Ensemble Learning System (Turkcell & İTÜ - TÜBİTAK 1505)
+High-performance ensemble learning system with LLM-driven data correction pipeline.
+- **Tech Stack:** XGBoost + LightGBM + CatBoost + LangChain + Python
+- **Features:** Pre-legal workflows optimization, LLM-based data correction
+- **Status:** Production
+
+### 11. Social Media Content Agents (İstinye University)
+Automated content generation agents for social media platforms.
+- **Tech Stack:** LLMs + Python + Automation + NLP
+- **Features:** Multi-platform content generation, automated posting
 
 ## What I'm Currently Working On
 
@@ -87,11 +123,11 @@ A: **Definitely LangChain/LangGraph for complex agent workflows**. Especially **
 **Q: What do you pay most attention to in production?**  
 A: **Observability and monitoring**. I trace every LLM call using LangSmith. **Error handling**, **retry logic**, **rate limiting** are critical. I ensure environment consistency through **containerization with Docker**. I optimize performance using **FastAPI's async** features.
 
-**Q: How can I work with you?**  
+**Q: How can I work with you?**
 A: You can reach me for technical projects:
-- **LinkedIn:** linkedin.com/in/timucinutkan (preferred)
+- **LinkedIn:** linkedin.com/in/timuçin-utkan-602504167 (preferred)
 - **Email:** timucinutkan@gmail.com
-- **GitHub:** github.com/timucinutkan (my code is here)
+- **GitHub:** github.com/cladesgod (my code is here)
 
 ---
 

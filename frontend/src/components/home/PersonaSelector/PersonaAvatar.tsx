@@ -1,6 +1,7 @@
 import { Suspense, useRef, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, Environment, ContactShadows } from '@react-three/drei'
+import { MeshoptDecoder } from 'three-stdlib'
 import { Group, Mesh } from 'three'
 import { PersonaType } from '@/store'
 
@@ -23,7 +24,10 @@ interface AvatarModelProps {
 
 function AvatarModel({ url, isSelected, isHovered, yOffset }: AvatarModelProps) {
   const groupRef = useRef<Group>(null)
-  const { scene } = useGLTF(url, '/draco/')
+  // Use meshopt decoder for optimized GLB files
+  const { scene } = useGLTF(url, true, true, (loader) => {
+    loader.setMeshoptDecoder(MeshoptDecoder)
+  })
 
   // Subtle animation
   useFrame((state) => {
@@ -52,7 +56,7 @@ function AvatarModel({ url, isSelected, isHovered, yOffset }: AvatarModelProps) 
     <group ref={groupRef}>
       <primitive
         object={scene}
-        scale={isSelected ? 1.1 : isHovered ? 1.05 : 1}
+        scale={isSelected ? 1.03 : isHovered ? 1.02 : 1}
         position={[0, yOffset, 0]}
       />
     </group>
@@ -136,8 +140,8 @@ export function PersonaAvatar({ persona, isSelected, isHovered, glowColor }: Per
   )
 }
 
-// Preload all avatars for better performance with Draco compression
-useGLTF.preload('/assets/avatars/engineer.glb', '/draco/')
-useGLTF.preload('/assets/avatars/researcher.glb', '/draco/')
-useGLTF.preload('/assets/avatars/speaker.glb', '/draco/')
-useGLTF.preload('/assets/avatars/educator.glb', '/draco/')
+// Preload all avatars for better performance with Meshopt compression
+useGLTF.preload('/assets/avatars/engineer.glb')
+useGLTF.preload('/assets/avatars/researcher.glb')
+useGLTF.preload('/assets/avatars/speaker.glb')
+useGLTF.preload('/assets/avatars/educator.glb')

@@ -30,7 +30,7 @@ interface ChatState {
   setTypingPersona: (persona: PersonaType | null) => void
 }
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/v1/chat'
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8001/api/v1/chat'
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],

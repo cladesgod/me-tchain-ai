@@ -29,6 +29,7 @@
     "react-router-dom": "^6",
     "tailwind-merge": "^2",
     "three": "^0.168",
+    "three-stdlib": "^2.36.1",
     "zustand": "^4"
   },
   "devDependencies": {

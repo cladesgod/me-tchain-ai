@@ -56,29 +56,19 @@ pnpm dev
 
 Open http://localhost:5173 (frontend) and http://localhost:8000/docs (API docs)
 
-### Docker (Production)
-
-Docker is for deployment, not required for local development.
-
-```bash
-docker-compose up -d
-```
-
 ## Project Structure
 
 ```
 ├── backend/           # FastAPI backend
 ├── frontend/          # React frontend
 ├── docs/              # Documentation
-├── CLAUDE.md          # AI assistant guide
-└── docker-compose.yml
+└── CLAUDE.md          # AI assistant guide
 ```
 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [API Reference](docs/API.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
 
 ## License
 

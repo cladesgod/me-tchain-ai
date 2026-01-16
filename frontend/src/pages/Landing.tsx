@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom' // temporarily hidden
 import { cn } from '@/utils'
 import { PERSONAS, PersonaType, usePersonaStore } from '@/store'
 import { PersonaAvatar } from '@/components/home/PersonaSelector/PersonaAvatar'
@@ -427,12 +427,31 @@ export default function Landing() {
             <span
               className="transition-colors duration-300"
               style={{
-                color: isHovering ? PERSONAS[isHovering].color : 'var(--persona-primary)',
+                color: isHovering
+                  ? PERSONAS[isHovering].color
+                  : selectedPersona
+                    ? PERSONAS[selectedPersona].color
+                    : 'white',
               }}
             >
               Utkan
             </span>
           </h1>
+
+          {/* Dynamic Tagline - Below name */}
+          <div className="h-12 md:h-14 mt-2 flex items-center justify-center px-4">
+            <p
+              className={cn(
+                'text-lg md:text-xl text-center transition-all duration-300 max-w-2xl',
+                isHovering ? '' : 'text-gray-500 italic'
+              )}
+              style={isHovering ? { color: PERSONAS[isHovering].color } : undefined}
+            >
+              {isHovering
+                ? (isEnglish ? PERSONAS[isHovering].subtitle : PERSONAS[isHovering].subtitleTR)
+                : `"${t('landing.chooseCharacter')}"`}
+            </p>
+          </div>
         </div>
 
         {/* SVG + Cards Container - share same width for alignment */}
@@ -571,7 +590,7 @@ export default function Landing() {
                     className={cn(
                       'relative flex flex-col items-center py-4 px-2 md:py-6 md:px-4 transition-all duration-500 ease-out w-full',
                       'focus:outline-none',
-                      isHovered ? 'scale-110 z-10' : 'scale-100',
+                      isHovered ? 'scale-105 z-10' : 'scale-100',
                       selectedPersona === personaId ? 'ring-2 ring-offset-2 ring-offset-gray-950' : ''
                     )}
                     style={{
@@ -622,12 +641,7 @@ export default function Landing() {
 
 
                     {/* 3D Avatar - larger and filling space */}
-                    <div
-                      className={cn(
-                        'relative w-32 h-44 md:w-48 md:h-64 transition-transform duration-500',
-                        isHovered ? 'scale-105' : 'scale-100'
-                      )}
-                    >
+                    <div className="relative w-32 h-44 md:w-48 md:h-64">
                       <PersonaAvatar
                         persona={personaId}
                         isSelected={false}
@@ -654,21 +668,6 @@ export default function Landing() {
               )
             })}
           </div>
-        </div>
-
-        {/* Dynamic Tagline - Below cards */}
-        <div className="h-12 md:h-16 mt-4 md:mt-6 flex items-center justify-center px-4">
-          <p
-            className={cn(
-              'text-lg md:text-xl text-center transition-all duration-300 max-w-2xl',
-              isHovering ? '' : 'text-gray-500 italic'
-            )}
-            style={isHovering ? { color: PERSONAS[isHovering].color } : undefined}
-          >
-            {isHovering
-              ? (isEnglish ? PERSONAS[isHovering].subtitle : PERSONAS[isHovering].subtitleTR)
-              : `"${t('landing.chooseCharacter')}"`}
-          </p>
         </div>
 
         {/* Scroll hint - only show if persona selected */}
@@ -724,25 +723,8 @@ export default function Landing() {
                   {isEnglish ? PERSONAS[selectedPersona].subtitle : PERSONAS[selectedPersona].subtitleTR}
                 </p>
 
-                {/* Stats */}
-                <div className="flex gap-8 md:gap-12 mt-8">
-                  {PERSONAS[selectedPersona].stats.map((stat, idx) => (
-                    <div key={idx} className="text-center">
-                      <div
-                        className="text-3xl md:text-4xl font-bold"
-                        style={{ color: PERSONAS[selectedPersona].color }}
-                      >
-                        {stat.value}
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        {isEnglish ? stat.label : stat.labelTR}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Career Game CTA */}
-                <div className="mt-12">
+                {/* Career Game CTA - temporarily hidden */}
+                {/* <div className="mt-12">
                   <Link
                     to="/career-game"
                     className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 via-purple-500 to-orange-500 rounded-xl font-bold text-white hover:scale-105 transition-transform duration-200 shadow-lg hover:shadow-cyan-500/50"
@@ -753,7 +735,7 @@ export default function Landing() {
                   <p className="text-xs text-gray-500 mt-3">
                     Interactive 3D timeline - Walk through my career and chat with projects
                   </p>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

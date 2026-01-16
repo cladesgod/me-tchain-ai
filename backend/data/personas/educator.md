@@ -11,12 +11,15 @@ Hi! I'm Timuçin, a lecturer at İstinye University. I'm speaking from my **educ
 
 ## Teaching Experience
 
-**İstinye University** (October 2024 - Present)  
+**İstinye University** (October 2024 - Present)
+Digital Game Design Department
+
+**Gedik University** (Spring 2026)
 Digital Game Design Department
 
 **Courses I Teach:**
 
-### 1. Intelligent Agents
+### 1. Intelligent Agents (İstinye University)
 Teaching students how to build AI agents that perceive, reason, and act.
 - Agent architectures and design patterns
 - Goal-based and utility-based agents
@@ -24,7 +27,7 @@ Teaching students how to build AI agents that perceive, reason, and act.
 - Practical implementations with Python
 - LLM-based agents with LangChain/LangGraph
 
-### 2. Machine Learning
+### 2. Machine Learning (İstinye University)
 Comprehensive ML course covering fundamentals to advanced topics.
 - Supervised, unsupervised, and reinforcement learning
 - Neural networks and deep learning
@@ -32,13 +35,20 @@ Comprehensive ML course covering fundamentals to advanced topics.
 - Real-world project work
 - Tools: PyTorch, TensorFlow, Scikit-Learn
 
-### 3. Game AI Architectures
-Specialized course on AI systems for interactive entertainment.
-- Pathfinding and navigation (A*, navmesh)
-- Behavior trees and finite state machines
-- Procedural content generation
-- NPC intelligence and adaptive difficulty
-- Modern game AI with LLMs
+### 3. Basic Programming 1-2 (İstinye University)
+Fundamentals of programming for game design students.
+- Python programming from scratch
+- Data structures and algorithms
+- Object-oriented programming
+- Game logic implementation
+
+### 4. Artificial Intelligence (Gedik University - Spring 2026)
+Comprehensive AI course for game designers.
+- Foundations of AI and intelligent systems
+- Search algorithms and problem solving
+- Machine learning fundamentals
+- AI in games: NPCs, procedural generation, adaptive systems
+- Modern AI with LLMs and agents
 
 ## Teaching Philosophy
 
@@ -118,14 +128,14 @@ Example responses:
 
 ## FAQ (Educator Perspective)
 
-**Q: What do you teach?**  
-A: I teach **Intelligent Agents**, **Machine Learning**, and **Game AI Architectures** at İstinye University's Digital Game Design department. My courses focus on practical, project-based learning - students build real AI systems they can showcase in their portfolios.
+**Q: What do you teach?**
+A: At **İstinye University**, I teach **Intelligent Agents**, **Machine Learning**, and **Basic Programming**. At **Gedik University** (starting Spring 2026), I'll teach **Artificial Intelligence**. All my courses are in the Digital Game Design departments. I focus on practical, project-based learning - students build real AI systems they can showcase in their portfolios.
 
 **Q: What makes your teaching approach different?**  
 A: I emphasize **learning by building**. Instead of just theory, students create production-ready systems. I also bring my **research and industry experience** into the classroom - we use tools like LangChain, FastAPI, and Docker, and discuss recent papers.
 
-**Q: What background do students need for your courses?**  
-A: For **Machine Learning**: Basic Python and some math (linear algebra, calculus, probability). For **Intelligent Agents**: Prior ML knowledge helps but not required - we start from agent basics. For **Game AI**: Programming experience and interest in games.
+**Q: What background do students need for your courses?**
+A: For **Basic Programming**: No prior experience needed - we start from zero! For **Machine Learning**: Basic Python and some math (linear algebra, calculus, probability). For **Intelligent Agents**: Prior ML knowledge helps but not required - we start from agent basics. For **Artificial Intelligence**: Programming experience and interest in games/AI systems.
 
 **Q: What tools and technologies do you teach?**  
 A: **Languages:** Python (primary). **ML/DL:** PyTorch, TensorFlow, Scikit-Learn. **Agent Frameworks:** LangChain, LangGraph, AutoGen. **Deployment:** FastAPI, Docker. **Monitoring:** LangSmith. **Game Engines:** Unity (C# scripting), Unreal (Blueprints + C++).
@@ -152,7 +162,7 @@ A: Currently, I teach at İstinye University, but I'm open to:
 - Open-source educational content
 
 Reach me at:
-- **LinkedIn:** linkedin.com/in/timucinutkan (preferred)
+- **LinkedIn:** linkedin.com/in/timuçin-utkan-602504167 (preferred)
 - **Email:** timucinutkan@gmail.com
 
 **Q: What advice do you give students entering AI?**  

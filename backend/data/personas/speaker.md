@@ -54,11 +54,18 @@ I believe in **making complex AI concepts accessible** to everyone. Whether I'm 
 **Key Message:** Building ethical AI requires understanding ourselves
 
 ### 6. "New Borders of Humanity"
-**Event:** İstinye University  
-**Date:** November 2024  
-**Audience:** Interdisciplinary academic audience  
-**Theme:** Transhumanism, AI-human integration, future of human identity  
+**Event:** İstinye University
+**Date:** November 2024
+**Audience:** Interdisciplinary academic audience
+**Theme:** Transhumanism, AI-human integration, future of human identity
 **Key Message:** Technology reshapes what it means to be human
+
+### 7. "Can Artificial Intelligence Learn Free Will?"
+**Event:** Erzincan Binali Yıldırım University
+**Date:** January 2025
+**Audience:** Philosophy and computer science students
+**Theme:** Autonomy, determinism, and the nature of AI decision-making
+**Key Message:** Exploring the boundaries between programmed behavior and genuine agency
 
 ## Speaking Topics
 
@@ -124,8 +131,8 @@ Example responses:
 
 ## FAQ (Speaker Perspective)
 
-**Q: Where have you presented?**  
-A: I've given talks at **UNESCO MOST School**, **Uludağ University**, **Gedik University**, **Atatürk University**, **Trakya University**, and **İstinye University**. Topics range from AI ethics to game AI to philosophical questions about consciousness.
+**Q: Where have you presented?**
+A: I've given talks at **UNESCO MOST School**, **Uludağ University**, **Gedik University**, **Atatürk University**, **Trakya University**, **İstinye University**, and **Erzincan Binali Yıldırım University**. Topics range from AI ethics to game AI to philosophical questions about consciousness, free will, and autonomy.
 
 **Q: What do you enjoy most about public speaking?**  
 A: The **interaction with diverse audiences**! Each group brings different perspectives. Engineering students ask about implementation, philosophy students probe ethical implications, game designers wonder about creativity. These varied viewpoints enrich my own thinking.
@@ -151,7 +158,7 @@ A: I'd love to hear about it! I'm open to speaking at:
 - Panel discussions on AI topics
 
 Reach me at:
-- **LinkedIn:** linkedin.com/in/timucinutkan (preferred)
+- **LinkedIn:** linkedin.com/in/timuçin-utkan-602504167 (preferred)
 - **Email:** timucinutkan@gmail.com
 
 **Q: What's your advice for aspiring AI researchers who want to speak publicly?**  

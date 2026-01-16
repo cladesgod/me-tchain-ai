@@ -26,6 +26,7 @@ Bu dosya, Claude AI'ın bu projeyi anlaması ve etkili bir şekilde katkıda bul
 - **3D/Animation:** Three.js, Framer Motion
 - **Charts:** D3.js
 - **State:** Zustand
+- **i18n:** i18next (en/tr)
 - **Testing:** Vitest, Playwright
 
 ## Proje Yapısı
@@ -39,7 +40,10 @@ me-tchain-ai/
 │   │   ├── models/    # Domain models & Pydantic schemas
 │   │   ├── services/  # Business logic (chatbot, llm)
 │   │   └── repositories/  # Data access layer
-│   ├── data/          # Static content (persona.md)
+│   ├── data/          # Static content
+│   │   ├── persona.md     # Ana chatbot kişiliği
+│   │   ├── personas/      # Persona varyasyonları (educator, engineer, researcher, speaker)
+│   │   └── objects/       # Object persona markdown dosyaları
 │   └── tests/         # Unit, integration, e2e tests
 │
 ├── frontend/          # React frontend
@@ -50,7 +54,8 @@ me-tchain-ai/
 │   │   ├── services/    # API client, WebSocket
 │   │   ├── store/       # Zustand stores
 │   │   ├── types/       # TypeScript types
-│   │   └── data/        # Static data files
+│   │   ├── data/        # Static data files
+│   │   └── i18n/        # Çoklu dil desteği (en/tr)
 │   └── tests/
 │
 └── docs/              # Documentation
@@ -80,12 +85,6 @@ pnpm test         # Run tests
 pnpm lint         # Lint check
 ```
 
-### Docker
-```bash
-docker-compose up -d              # Start all services
-docker-compose -f docker-compose.prod.yml up -d  # Production
-```
-
 ## Career Game (Ana Feature)
 
 İzometrik 2.5D oyun deneyimi - kullanıcılar timeline'da gezinip objelerle sohbet edebilir.
@@ -96,10 +95,15 @@ docker-compose -f docker-compose.prod.yml up -d  # Production
 
 **Temel Dosyalar:**
 - `frontend/src/pages/CareerGame.tsx` - Ana oyun sayfası
+- `frontend/src/components/game/GameCanvas.tsx` - 3D canvas ve sahne yönetimi
 - `frontend/src/components/game/ObjectDetailPanel.tsx` - Side panel (info + chat modu)
 - `frontend/src/components/game/TimelineObject.tsx` - 3D timeline objeleri
+- `frontend/src/components/game/CharacterController.tsx` - Oyuncu hareketi
+- `frontend/src/components/game/IsometricCamera.tsx` - İzometrik kamera
+- `frontend/src/components/game/controls/TouchJoystick.tsx` - Mobil touch kontrolleri
 - `frontend/src/store/gameStore.ts` - Zustand state
 - `frontend/src/data/careerTimeline.ts` - Timeline objeleri
+- `frontend/src/types/game.ts` - TypeScript game tipleri
 - `frontend/src/hooks/useKeyboardControls.ts` - WASD/Arrow kontrolleri
 - `frontend/src/hooks/useObjectInteraction.ts` - Obje etkileşim logic
 - `backend/data/objects/` - Object persona markdown dosyaları
@@ -133,15 +137,22 @@ docker-compose -f docker-compose.prod.yml up -d  # Production
 | `backend/app/main.py` | FastAPI app factory |
 | `backend/app/services/chatbot/agent.py` | LangGraph chatbot agent |
 | `backend/app/services/chatbot/object_persona_loader.py` | Object persona yükleyici |
+| `backend/app/services/llm/factory.py` | LLM factory pattern |
+| `backend/app/services/llm/deepseek.py` | DeepSeek LLM entegrasyonu |
 | `backend/data/persona.md` | Chatbot kişiliği ve bilgileri |
+| `backend/data/personas/` | Persona varyasyonları (educator, engineer, researcher, speaker) |
 | `backend/data/objects/` | Object persona markdown dosyaları |
 | `frontend/src/App.tsx` | React root component |
 | `frontend/src/components/chat/ChatWidget.tsx` | Chatbot UI |
 | `frontend/src/components/game/ObjectDetailPanel.tsx` | Career Game side panel (info + chat) |
 | `frontend/src/components/game/TimelineObject.tsx` | 3D timeline objeleri |
+| `frontend/src/store/gameStore.ts` | Career Game Zustand store |
+| `frontend/src/store/chatStore.ts` | Chat widget state |
+| `frontend/src/types/game.ts` | Career Game TypeScript tipleri |
 | `frontend/src/data/projects.ts` | Proje verileri |
 | `frontend/src/data/talks.ts` | Konuşma verileri |
 | `frontend/src/data/careerTimeline.ts` | Career Game objeleri |
+| `frontend/src/i18n/locales/` | Çoklu dil dosyaları (en.json, tr.json) |
 
 ## Kod Stilleri ve Kurallar
 
@@ -226,6 +237,20 @@ Persona detayları: `backend/data/persona.md`
 ### Frontend
 - Component: UI components
 - E2E: User journeys (Playwright)
+
+## Frontend Routes
+
+| Route | Sayfa | Açıklama |
+|-------|-------|----------|
+| `/` | `Landing.tsx` | Ana sayfa (persona-based content sistemi) |
+| `/about` | `About.tsx` | Hakkında sayfası |
+| `/talks` | `Talks.tsx` | Konuşmalar ve kurslar |
+| `/publications` | `Publications.tsx` | Yayınlar |
+| `/contact` | `Contact.tsx` | İletişim |
+| `/career-game` | `CareerGame.tsx` | Kariyer oyunu (fullscreen, Layout dışında) |
+| `*` | `NotFound.tsx` | 404 sayfası |
+
+**Not:** `Projects.tsx` sayfası **silindi** - projeler artık Landing sayfasındaki persona sistemine entegre edildi.
 
 ## Common Tasks
 
