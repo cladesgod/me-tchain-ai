@@ -5,6 +5,7 @@ Loads persona content for Career Game timeline objects.
 Each object (project, thesis, education, etc.) speaks in first person about itself.
 """
 
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -15,6 +16,29 @@ logger = get_logger(__name__)
 # Objects persona directory
 OBJECTS_DIR = Path(__file__).parent.parent.parent.parent / "data" / "objects"
 
+# Valid object_id pattern: alphanumeric, underscore, hyphen only
+VALID_OBJECT_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_-]+$")
+
+
+def validate_object_id(object_id: str) -> bool:
+    """
+    Validate object_id to prevent path traversal attacks.
+
+    Args:
+        object_id: The object ID to validate
+
+    Returns:
+        True if valid, False otherwise
+    """
+    if not object_id or not VALID_OBJECT_ID_PATTERN.match(object_id):
+        return False
+
+    # Additional check: ensure no path components
+    if ".." in object_id or "/" in object_id or "\\" in object_id:
+        return False
+
+    return True
+
 
 def load_object_persona(object_id: str) -> Optional[str]:
     """
@@ -24,9 +48,25 @@ def load_object_persona(object_id: str) -> Optional[str]:
         object_id: The objectPersonaId from careerTimeline.ts (e.g., 'project_apa_citation')
 
     Returns:
-        Persona content as string, or None if not found
+        Persona content as string, or None if not found or invalid
     """
+    # Security: Validate object_id to prevent path traversal
+    if not validate_object_id(object_id):
+        logger.warning("invalid_object_id_rejected", object_id=object_id)
+        return None
+
     persona_file = OBJECTS_DIR / f"{object_id}.md"
+
+    # Security: Double-check resolved path is within OBJECTS_DIR
+    try:
+        resolved_path = persona_file.resolve()
+        objects_dir_resolved = OBJECTS_DIR.resolve()
+        if not str(resolved_path).startswith(str(objects_dir_resolved)):
+            logger.error("path_traversal_attempt_blocked", object_id=object_id)
+            return None
+    except (OSError, ValueError) as e:
+        logger.error("path_resolution_error", object_id=object_id, error=str(e))
+        return None
 
     try:
         if persona_file.exists():

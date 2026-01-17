@@ -1,10 +1,4 @@
-export {
-  projects,
-  getFeaturedProjects,
-  getProjectsByPersona,
-  statusColors,
-  projectStats,
-} from './projects'
+export { projects, statusColors, projectStats } from './projects'
 export type { Project, ProjectStatus } from './projects'
 
 export {
