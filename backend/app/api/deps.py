@@ -15,20 +15,13 @@ from app.services.chatbot.memory import ConversationMemory
 async def get_chat_agent() -> AsyncGenerator[ChatAgent, None]:
     """Get ChatAgent instance with dependency injection."""
     agent = ChatAgent()
-    try:
-        yield agent
-    finally:
-        # Cleanup if needed
-        pass
+    yield agent
 
 
 async def get_conversation_memory() -> AsyncGenerator[ConversationMemory, None]:
     """Get ConversationMemory instance."""
     memory = ConversationMemory()
-    try:
-        yield memory
-    finally:
-        pass
+    yield memory
 
 
 # Type aliases for cleaner dependency injection

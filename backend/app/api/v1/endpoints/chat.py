@@ -6,6 +6,7 @@ Real-time chat with AI chatbot via WebSocket.
 
 import json
 from typing import Optional
+from uuid import uuid4
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -15,6 +16,9 @@ from app.services.chatbot.memory import ConversationMemory
 
 router = APIRouter()
 logger = get_logger(__name__)
+
+# Security: Maximum message length to prevent DoS attacks
+MAX_MESSAGE_LENGTH = 10000  # 10K characters
 
 
 class ConnectionManager:
@@ -78,8 +82,7 @@ async def websocket_chat(
     is_object_mode = object_id is not None
     # Generate session ID if not provided
     if not session_id:
-        import uuid
-        session_id = str(uuid.uuid4())
+        session_id = str(uuid4())
 
     await manager.connect(websocket, session_id)
 
@@ -124,7 +127,25 @@ async def websocket_chat(
                 message = json.loads(data)
                 user_content = message.get("content", "")
 
+                # Validate message content
                 if not user_content:
+                    continue
+
+                # Security: Reject oversized messages to prevent DoS
+                if len(user_content) > MAX_MESSAGE_LENGTH:
+                    logger.warning(
+                        "message_too_large",
+                        session_id=session_id,
+                        content_length=len(user_content),
+                        max_length=MAX_MESSAGE_LENGTH,
+                    )
+                    await manager.send_message(
+                        session_id,
+                        {
+                            "type": "error",
+                            "content": f"Message too long. Maximum {MAX_MESSAGE_LENGTH} characters allowed.",
+                        },
+                    )
                     continue
 
                 if is_object_mode:

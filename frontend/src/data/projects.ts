@@ -211,28 +211,6 @@ export const projects: Project[] = [
   },
 ]
 
-// Helper to get featured projects
-export const getFeaturedProjects = (): Project[] => {
-  return projects.filter((p) => p.featured)
-}
-
-// Helper to get projects by persona
-export const getProjectsByPersona = (persona: 'engineer' | 'researcher' | 'speaker' | 'educator'): Project[] => {
-  return projects.filter((p) => p.personas?.includes(persona))
-}
-
-// Helper to get project by ID
-export const getProjectById = (id: string): Project | undefined => {
-  return projects.find((p) => p.id === id)
-}
-
-// Helper to get related projects
-export const getRelatedProjects = (projectId: string): Project[] => {
-  const project = getProjectById(projectId)
-  if (!project?.relatedProjectIds) return []
-  return project.relatedProjectIds.map((id) => getProjectById(id)).filter((p): p is Project => p !== undefined)
-}
-
 // Status colors for UI
 export const statusColors: Record<ProjectStatus, string> = {
   Live: 'bg-green-500/20 text-green-400 border-green-500/30',
