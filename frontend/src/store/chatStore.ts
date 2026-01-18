@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { WS_CHAT_ENDPOINT, IS_DEV } from '@/lib/config'
+import { parseWebSocketMessage } from '@/lib/schemas'
 
 export type PersonaType = 'engineer' | 'researcher' | 'speaker' | 'educator'
 
@@ -30,8 +32,6 @@ interface ChatState {
   setTypingPersona: (persona: PersonaType | null) => void
 }
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8001/api/v1/chat'
-
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isConnected: false,
@@ -45,72 +45,89 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { ws } = get()
     if (ws) return // Already connected
 
-    const socket = new WebSocket(WS_URL)
+    if (IS_DEV) {
+      console.log('[ChatStore] Connecting to WebSocket:', WS_CHAT_ENDPOINT)
+    }
+
+    const socket = new WebSocket(WS_CHAT_ENDPOINT)
 
     socket.onopen = () => {
       set({ isConnected: true, ws: socket })
-      console.log('WebSocket connected')
+      if (IS_DEV) {
+        console.log('[ChatStore] WebSocket connected!')
+      }
     }
 
     socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
+      const message = parseWebSocketMessage(event.data)
+      if (!message) return // Invalid message, already logged by parseWebSocketMessage
 
-        if (data.type === 'system') {
+      switch (message.type) {
+        case 'system':
           // Welcome message
-          set({ sessionId: data.session_id })
+          set({ sessionId: message.session_id ?? null })
           get().addMessage({
             id: crypto.randomUUID(),
-            content: data.content,
+            content: message.content,
             role: 'assistant',
             timestamp: new Date(),
           })
-        } else if (data.type === 'typing') {
+          break
+
+        case 'typing':
           // Persona is typing
-          get().setTypingPersona(data.persona)
+          get().setTypingPersona(message.persona as PersonaType | null)
           // Add placeholder message for this persona if not already streaming
           const lastMessage = get().messages[get().messages.length - 1]
-          if (!lastMessage || lastMessage.persona !== data.persona || !lastMessage.isStreaming) {
+          if (!lastMessage || lastMessage.persona !== message.persona || !lastMessage.isStreaming) {
             get().addMessage({
               id: crypto.randomUUID(),
               content: '',
               role: 'assistant',
-              persona: data.persona,
+              persona: message.persona as PersonaType,
               timestamp: new Date(),
               isStreaming: true,
             })
-            set({ currentStreamingPersona: data.persona })
+            set({ currentStreamingPersona: message.persona as PersonaType })
           }
-        } else if (data.type === 'stream') {
+          break
+
+        case 'stream':
           // Streaming content from persona
           get().setTypingPersona(null)
-          get().updateLastMessage(data.content, data.persona)
-        } else if (data.type === 'done') {
+          get().updateLastMessage(message.content, message.persona as PersonaType | undefined)
+          break
+
+        case 'done':
           // Persona finished
           get().setStreaming(false)
           set({ currentStreamingPersona: null, typingPersona: null })
-        } else if (data.type === 'error') {
+          break
+
+        case 'error':
           get().addMessage({
             id: crypto.randomUUID(),
-            content: data.content,
+            content: message.content,
             role: 'assistant',
             timestamp: new Date(),
           })
-        }
-      } catch (err) {
-        console.error('Failed to parse message:', err)
+          break
       }
     }
 
-    socket.onclose = () => {
+    socket.onclose = (event) => {
       set({ isConnected: false, ws: null })
-      console.log('WebSocket disconnected')
+      if (IS_DEV) {
+        console.log('[ChatStore] WebSocket disconnected. Code:', event.code, 'Reason:', event.reason)
+      }
       // Attempt to reconnect after 3 seconds
       setTimeout(() => get().connect(), 3000)
     }
 
     socket.onerror = (error) => {
-      console.error('WebSocket error:', error)
+      if (IS_DEV) {
+        console.error('[ChatStore] WebSocket error:', error)
+      }
     }
   },
 
@@ -147,33 +164,43 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   updateLastMessage: (content: string, persona?: PersonaType) => {
     set((state) => {
-      const messages = [...state.messages]
       // Find the last message from this persona (if specified) or last assistant message
-      let targetIndex = messages.length - 1
+      let targetIndex = state.messages.length - 1
       if (persona) {
-        for (let i = messages.length - 1; i >= 0; i--) {
-          if (messages[i].role === 'assistant' && messages[i].persona === persona && messages[i].isStreaming) {
+        for (let i = state.messages.length - 1; i >= 0; i--) {
+          if (state.messages[i].role === 'assistant' && state.messages[i].persona === persona && state.messages[i].isStreaming) {
             targetIndex = i
             break
           }
         }
       }
-      const lastMessage = messages[targetIndex]
+      const lastMessage = state.messages[targetIndex]
       if (lastMessage && lastMessage.role === 'assistant') {
-        lastMessage.content += content
+        // Create a new array with a new message object to avoid mutation
+        const messages = [...state.messages]
+        messages[targetIndex] = {
+          ...lastMessage,
+          content: lastMessage.content + content
+        }
+        return { messages }
       }
-      return { messages }
+      return state
     })
   },
 
   setStreaming: (isStreaming: boolean) => {
     set((state) => {
-      const messages = [...state.messages]
-      const lastMessage = messages[messages.length - 1]
+      if (state.messages.length === 0) return state
+      const lastMessage = state.messages[state.messages.length - 1]
       if (lastMessage) {
-        lastMessage.isStreaming = isStreaming
+        // Create a new array with a new message object to avoid mutation
+        const messages = [...state.messages.slice(0, -1), {
+          ...lastMessage,
+          isStreaming
+        }]
+        return { messages }
       }
-      return { messages }
+      return state
     })
   },
 

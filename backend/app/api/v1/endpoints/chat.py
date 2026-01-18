@@ -11,8 +11,8 @@ from uuid import uuid4
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.core.logging import get_logger
+from app.core.websocket import ConnectionManager
 from app.services.chatbot.agent import ChatAgent
-from app.services.chatbot.memory import ConversationMemory
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -20,32 +20,24 @@ logger = get_logger(__name__)
 # Security: Maximum message length to prevent DoS attacks
 MAX_MESSAGE_LENGTH = 10000  # 10K characters
 
-
-class ConnectionManager:
-    """Manage WebSocket connections."""
-
-    def __init__(self) -> None:
-        self.active_connections: dict[str, WebSocket] = {}
-
-    async def connect(self, websocket: WebSocket, session_id: str) -> None:
-        """Accept and store a WebSocket connection."""
-        await websocket.accept()
-        self.active_connections[session_id] = websocket
-        logger.info("websocket_connected", session_id=session_id)
-
-    def disconnect(self, session_id: str) -> None:
-        """Remove a WebSocket connection."""
-        if session_id in self.active_connections:
-            del self.active_connections[session_id]
-            logger.info("websocket_disconnected", session_id=session_id)
-
-    async def send_message(self, session_id: str, message: dict) -> None:
-        """Send a message to a specific connection."""
-        if session_id in self.active_connections:
-            await self.active_connections[session_id].send_json(message)
+# Global connection manager instance
+# Will be initialized in app startup
+manager: Optional[ConnectionManager] = None
 
 
-manager = ConnectionManager()
+def get_manager() -> ConnectionManager:
+    """Get the global connection manager instance."""
+    if manager is None:
+        raise RuntimeError("ConnectionManager not initialized. Call init_manager() first.")
+    return manager
+
+
+def init_manager() -> ConnectionManager:
+    """Initialize the global connection manager."""
+    global manager
+    if manager is None:
+        manager = ConnectionManager()
+    return manager
 
 
 @router.websocket("")
@@ -84,17 +76,23 @@ async def websocket_chat(
     if not session_id:
         session_id = str(uuid4())
 
-    await manager.connect(websocket, session_id)
+    # Get manager instance
+    mgr = get_manager()
 
-    # Initialize chat agent and memory for this session
-    memory = ConversationMemory()
-    agent = ChatAgent(memory=memory)
+    # Try to connect (may be rejected if limits exceeded)
+    connected = await mgr.connect(websocket, session_id)
+    if not connected:
+        logger.warning("connection_rejected", session_id=session_id)
+        return
+
+    # Initialize chat agent (memory will be injected automatically)
+    agent = ChatAgent()
 
     try:
         # Send appropriate welcome message based on mode
         if is_object_mode:
             display_title = object_title or object_id
-            await manager.send_message(
+            await mgr.send_message(
                 session_id,
                 {
                     "type": "system",
@@ -110,7 +108,7 @@ async def websocket_chat(
                 object_title=object_title,
             )
         else:
-            await manager.send_message(
+            await mgr.send_message(
                 session_id,
                 {
                     "type": "system",
@@ -139,7 +137,7 @@ async def websocket_chat(
                         content_length=len(user_content),
                         max_length=MAX_MESSAGE_LENGTH,
                     )
-                    await manager.send_message(
+                    await mgr.send_message(
                         session_id,
                         {
                             "type": "error",
@@ -165,7 +163,7 @@ async def websocket_chat(
                         object_title or object_id,
                     ):
                         # response_chunk format: {"type": "typing"|"stream"|"done", "object_id": str, "content": str}
-                        await manager.send_message(session_id, response_chunk)
+                        await mgr.send_message(session_id, response_chunk)
                 else:
                     # Multi-persona mode (default)
                     selected_persona = message.get("persona", None)
@@ -182,10 +180,10 @@ async def websocket_chat(
                         user_content, session_id, selected_persona
                     ):
                         # response_chunk format: {"type": "typing"|"stream"|"done", "persona": str, "content": str}
-                        await manager.send_message(session_id, response_chunk)
+                        await mgr.send_message(session_id, response_chunk)
 
             except json.JSONDecodeError:
-                await manager.send_message(
+                await mgr.send_message(
                     session_id,
                     {
                         "type": "error",
@@ -194,15 +192,15 @@ async def websocket_chat(
                 )
 
     except WebSocketDisconnect:
-        manager.disconnect(session_id)
+        await mgr.disconnect(session_id)
         logger.info("client_disconnected", session_id=session_id, mode="object" if is_object_mode else "multi_persona")
     except Exception as e:
         logger.error("websocket_error", session_id=session_id, error=str(e), mode="object" if is_object_mode else "multi_persona")
-        await manager.send_message(
+        await mgr.send_message(
             session_id,
             {
                 "type": "error",
                 "content": "An error occurred. Please try again.",
             },
         )
-        manager.disconnect(session_id)
+        await mgr.disconnect(session_id)

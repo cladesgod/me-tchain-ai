@@ -33,5 +33,14 @@ aiohttp
 python-dotenv
 orjson
 
+# Rate Limiting
+slowapi
+
+# Caching & Session Storage
+redis
+
+# Retry & Circuit Breaker
+tenacity
+
 # Logging
 structlog

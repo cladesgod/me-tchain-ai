@@ -1,7 +1,8 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { Layout } from './components/layout'
-// import { ChatWidget } from './components/chat' // temporarily hidden
+import { ChatWidget } from './components/chat'
+import { ErrorBoundary, GameErrorFallback, PageErrorFallback } from './components/ui'
 
 // Lazy load pages for code splitting
 const Landing = lazy(() => import('./pages/Landing'))
@@ -26,34 +27,38 @@ function App() {
   // Game page renders without Layout (fullscreen)
   if (isGamePage) {
     return (
-      <Suspense fallback={<PageLoader />}>
-        <CareerGame />
-      </Suspense>
+      <ErrorBoundary fallback={<GameErrorFallback />}>
+        <Suspense fallback={<PageLoader />}>
+          <CareerGame />
+        </Suspense>
+      </ErrorBoundary>
     )
   }
 
   return (
     <>
       <Layout>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Landing page - Single page with all personas */}
-            <Route path="/" element={<Landing />} />
+        <ErrorBoundary fallback={<PageErrorFallback />}>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Landing page - Single page with all personas */}
+              <Route path="/" element={<Landing />} />
 
-            {/* Secondary pages */}
-            <Route path="/talks" element={<Talks />} />
-            <Route path="/publications" element={<Publications />} />
-            <Route path="/resume" element={<Resume />} />
-            <Route path="/contact" element={<Contact />} />
+              {/* Secondary pages */}
+              <Route path="/talks" element={<Talks />} />
+              <Route path="/publications" element={<Publications />} />
+              <Route path="/resume" element={<Resume />} />
+              <Route path="/contact" element={<Contact />} />
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </Layout>
 
-      {/* Floating Chat Widget - temporarily hidden */}
-      {/* <ChatWidget /> */}
+      {/* Floating Chat Widget */}
+      <ChatWidget />
     </>
   )
 }

@@ -39,6 +39,27 @@ export function ObjectChatModal() {
   const wsRef = useRef<WebSocket | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Add message helper
+  const addMessage = useCallback((message: ObjectMessage) => {
+    setMessages((prev) => [...prev, message])
+  }, [])
+
+  // Update last message helper (for streaming)
+  const updateLastMessage = useCallback((content: string) => {
+    setMessages((prev) => {
+      if (prev.length === 0) return prev
+      const lastMsg = prev[prev.length - 1]
+      if (lastMsg && lastMsg.role === 'assistant') {
+        // Create new array with new last message object to avoid mutation
+        return [
+          ...prev.slice(0, -1),
+          { ...lastMsg, content: lastMsg.content + content }
+        ]
+      }
+      return prev
+    })
+  }, [])
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -65,7 +86,9 @@ export function ObjectChatModal() {
 
     socket.onopen = () => {
       setIsConnected(true)
-      console.log(`Object chat connected: ${chattingWithObject.objectPersonaId}`)
+      if (import.meta.env.DEV) {
+        console.log(`Object chat connected: ${chattingWithObject.objectPersonaId}`)
+      }
     }
 
     socket.onmessage = (event) => {
@@ -108,12 +131,16 @@ export function ObjectChatModal() {
           // Object finished
           setIsTyping(false)
           setMessages((prev) => {
-            const updated = [...prev]
-            const lastMsg = updated[updated.length - 1]
-            if (lastMsg) {
-              lastMsg.isStreaming = false
+            if (prev.length === 0) return prev
+            const lastMsg = prev[prev.length - 1]
+            if (lastMsg && lastMsg.isStreaming) {
+              // Create new array with new last message object to avoid mutation
+              return [
+                ...prev.slice(0, -1),
+                { ...lastMsg, isStreaming: false }
+              ]
             }
-            return updated
+            return prev
           })
         } else if (data.type === 'error') {
           addMessage({
@@ -124,40 +151,29 @@ export function ObjectChatModal() {
           })
         }
       } catch (err) {
-        console.error('Failed to parse object chat message:', err)
+        if (import.meta.env.DEV) {
+          console.error('Failed to parse object chat message:', err)
+        }
       }
     }
 
     socket.onclose = () => {
       setIsConnected(false)
-      console.log('Object chat disconnected')
+      if (import.meta.env.DEV) {
+        console.log('Object chat disconnected')
+      }
     }
 
     socket.onerror = (error) => {
-      console.error('Object chat WebSocket error:', error)
+      if (import.meta.env.DEV) {
+        console.error('Object chat WebSocket error:', error)
+      }
     }
 
     return () => {
       socket.close()
     }
-  }, [isChatting, chattingWithObject, lang])
-
-  // Add message helper
-  const addMessage = useCallback((message: ObjectMessage) => {
-    setMessages((prev) => [...prev, message])
-  }, [])
-
-  // Update last message helper (for streaming)
-  const updateLastMessage = useCallback((content: string) => {
-    setMessages((prev) => {
-      const updated = [...prev]
-      const lastMsg = updated[updated.length - 1]
-      if (lastMsg && lastMsg.role === 'assistant') {
-        lastMsg.content += content
-      }
-      return updated
-    })
-  }, [])
+  }, [isChatting, chattingWithObject, lang, addMessage, updateLastMessage])
 
   // Send message handler
   const handleSend = useCallback(() => {

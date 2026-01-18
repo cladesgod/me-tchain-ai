@@ -133,6 +133,11 @@ export function ObjectDetailPanel() {
     tokenBufferRef.current = '' // Clear buffer
   }, [selectedObject?.id])
 
+  // Add message helper
+  const addMessage = useCallback((message: ObjectMessage) => {
+    setMessages((prev) => [...prev, message])
+  }, [])
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -159,7 +164,9 @@ export function ObjectDetailPanel() {
 
     socket.onopen = () => {
       setIsConnected(true)
-      console.log(`Object chat connected: ${selectedObject.objectPersonaId}`)
+      if (import.meta.env.DEV) {
+        console.log(`Object chat connected: ${selectedObject.objectPersonaId}`)
+      }
       // Focus input when connected
       setTimeout(() => inputRef.current?.focus(), 100)
     }
@@ -232,23 +239,29 @@ export function ObjectDetailPanel() {
           })
         }
       } catch (err) {
-        console.error('Failed to parse object chat message:', err)
+        if (import.meta.env.DEV) {
+          console.error('Failed to parse object chat message:', err)
+        }
       }
     }
 
     socket.onclose = () => {
       setIsConnected(false)
-      console.log('Object chat disconnected')
+      if (import.meta.env.DEV) {
+        console.log('Object chat disconnected')
+      }
     }
 
     socket.onerror = (error) => {
-      console.error('Object chat WebSocket error:', error)
+      if (import.meta.env.DEV) {
+        console.error('Object chat WebSocket error:', error)
+      }
     }
 
     return () => {
       socket.close()
     }
-  }, [panelMode, selectedObject, lang])
+  }, [panelMode, selectedObject, lang, addMessage])
 
   // Handle ESC key - different behavior based on mode
   useEffect(() => {
@@ -267,11 +280,6 @@ export function ObjectDetailPanel() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, panelMode, selectObject])
-
-  // Add message helper
-  const addMessage = useCallback((message: ObjectMessage) => {
-    setMessages((prev) => [...prev, message])
-  }, [])
 
   // Send message handler
   const handleSend = useCallback(() => {

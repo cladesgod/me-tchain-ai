@@ -6,13 +6,13 @@ The main chatbot agent using LangGraph for orchestration.
 
 from typing import AsyncGenerator, Optional
 
-from app.core.config import settings
 from app.core.logging import get_logger
-from app.services.chatbot.memory import ConversationMemory
+from app.services.chatbot.memory_factory import ConversationMemoryProtocol, get_memory
+from app.services.chatbot.object_persona_loader import get_object_persona
 from app.services.chatbot.persona import get_persona, load_persona_by_type
 from app.services.chatbot.persona_router import route_question
 from app.services.chatbot.prompts import get_system_prompt
-from app.services.chatbot.object_persona_loader import get_object_persona
+from app.services.llm.client import get_llm_client
 
 logger = get_logger(__name__)
 
@@ -27,32 +27,16 @@ class ChatAgent:
     - Microsoft AI Foundry for DeepSeek access
     """
 
-    def __init__(self, memory: Optional[ConversationMemory] = None) -> None:
-        self.memory = memory or ConversationMemory()
+    def __init__(self, memory: Optional[ConversationMemoryProtocol] = None) -> None:
+        self.memory = memory
         self.persona = get_persona()
         self.system_prompt = get_system_prompt(self.persona)
-        self._llm = None
 
-    async def _get_llm(self):
-        """Lazy-load LLM client."""
-        if self._llm is None:
-            try:
-                from langchain_openai import AzureChatOpenAI
-
-                self._llm = AzureChatOpenAI(
-                    azure_endpoint=settings.AZURE_AI_ENDPOINT.rstrip("/"),
-                    azure_deployment=settings.DEEPSEEK_DEPLOYMENT_NAME,
-                    api_version=settings.AZURE_API_VERSION,
-                    api_key=settings.AZURE_AI_CREDENTIAL,
-                    temperature=0.7,
-                    streaming=True,
-                )
-                logger.info("llm_initialized", provider="azure_ai_foundry")
-            except Exception as e:
-                logger.error("llm_initialization_failed", error=str(e))
-                raise
-
-        return self._llm
+    async def _get_memory(self) -> ConversationMemoryProtocol:
+        """Get or create memory instance."""
+        if self.memory is None:
+            self.memory = await get_memory()
+        return self.memory
 
     async def chat(self, user_message: str, session_id: str) -> str:
         """
@@ -65,22 +49,26 @@ class ChatAgent:
         Returns:
             The assistant's response
         """
+        # Get memory instance
+        memory = await self._get_memory()
+
         # Add user message to memory
-        self.memory.add_message(session_id, "user", user_message)
+        await memory.add_message(session_id, "user", user_message)
 
         try:
-            llm = await self._get_llm()
+            llm = await get_llm_client()
 
             # Build messages
             messages = [{"role": "system", "content": self.system_prompt}]
-            messages.extend(self.memory.get_history(session_id, limit=10))
+            history = await memory.get_history(session_id, limit=10)
+            messages.extend(history)
 
             # Get response
             response = await llm.ainvoke(messages)
             assistant_message = response.content
 
             # Add to memory
-            self.memory.add_message(session_id, "assistant", assistant_message)
+            await memory.add_message(session_id, "assistant", assistant_message)
 
             logger.info(
                 "chat_response_generated",
@@ -108,15 +96,19 @@ class ChatAgent:
         Yields:
             Response chunks as they're generated
         """
+        # Get memory instance
+        memory = await self._get_memory()
+
         # Add user message to memory
-        self.memory.add_message(session_id, "user", user_message)
+        await memory.add_message(session_id, "user", user_message)
 
         try:
-            llm = await self._get_llm()
+            llm = await get_llm_client()
 
             # Build messages
             messages = [{"role": "system", "content": self.system_prompt}]
-            messages.extend(self.memory.get_history(session_id, limit=10))
+            history = await memory.get_history(session_id, limit=10)
+            messages.extend(history)
 
             # Stream response
             full_response = ""
@@ -126,7 +118,7 @@ class ChatAgent:
                     yield chunk.content
 
             # Add complete response to memory
-            self.memory.add_message(session_id, "assistant", full_response)
+            await memory.add_message(session_id, "assistant", full_response)
 
             logger.info(
                 "chat_stream_completed",
@@ -138,7 +130,7 @@ class ChatAgent:
             logger.error("chat_stream_error", session_id=session_id, error=str(e))
             fallback = self._get_fallback_response()
             yield fallback
-            self.memory.add_message(session_id, "assistant", fallback)
+            await memory.add_message(session_id, "assistant", fallback)
 
     async def stream_multi_persona_response(
         self, user_message: str, session_id: str, selected_persona: Optional[str] = None
@@ -159,8 +151,11 @@ class ChatAgent:
                 "content": str,
             }
         """
+        # Get memory instance
+        memory = await self._get_memory()
+
         # Add user message to memory
-        self.memory.add_message(session_id, "user", user_message)
+        await memory.add_message(session_id, "user", user_message)
 
         try:
             # Use LLM router to determine which persona(s) should respond and order
@@ -189,11 +184,12 @@ class ChatAgent:
                 persona_prompt = get_system_prompt(persona_content)
 
                 # Get LLM
-                llm = await self._get_llm()
+                llm = await get_llm_client()
 
                 # Build messages with persona-specific system prompt
                 messages = [{"role": "system", "content": persona_prompt}]
-                messages.extend(self.memory.get_history(session_id, limit=10))
+                history = await memory.get_history(session_id, limit=10)
+                messages.extend(history)
 
                 # Stream response for this persona
                 persona_response = ""
@@ -221,7 +217,7 @@ class ChatAgent:
                 )
 
             # Add combined response to memory
-            self.memory.add_message(session_id, "assistant", full_combined_response.strip())
+            await memory.add_message(session_id, "assistant", full_combined_response.strip())
 
             logger.info(
                 "multi_persona_stream_completed",
@@ -239,7 +235,7 @@ class ChatAgent:
                 "content": fallback,
             }
             yield {"type": "done", "persona": fallback_persona, "content": ""}
-            self.memory.add_message(session_id, "assistant", fallback)
+            await memory.add_message(session_id, "assistant", fallback)
 
     async def stream_object_response(
         self,
@@ -268,8 +264,11 @@ class ChatAgent:
                 "content": str,
             }
         """
+        # Get memory instance
+        memory = await self._get_memory()
+
         # Add user message to memory with object context
-        self.memory.add_message(session_id, "user", f"[To {object_title}]: {user_message}")
+        await memory.add_message(session_id, "user", f"[To {object_title}]: {user_message}")
 
         try:
             # Send typing indicator
@@ -282,11 +281,12 @@ class ChatAgent:
             object_system_prompt = self._build_object_system_prompt(object_persona, object_title)
 
             # Get LLM
-            llm = await self._get_llm()
+            llm = await get_llm_client()
 
             # Build messages with object persona system prompt
             messages = [{"role": "system", "content": object_system_prompt}]
-            messages.extend(self.memory.get_history(session_id, limit=10))
+            history = await memory.get_history(session_id, limit=10)
+            messages.extend(history)
 
             # Stream response
             full_response = ""
@@ -303,7 +303,7 @@ class ChatAgent:
             yield {"type": "done", "object_id": object_id, "content": ""}
 
             # Add to memory
-            self.memory.add_message(
+            await memory.add_message(
                 session_id, "assistant", f"[{object_title}]: {full_response}"
             )
 
@@ -324,7 +324,7 @@ class ChatAgent:
             fallback = self._get_object_fallback_response(object_title)
             yield {"type": "stream", "object_id": object_id, "content": fallback}
             yield {"type": "done", "object_id": object_id, "content": ""}
-            self.memory.add_message(session_id, "assistant", f"[{object_title}]: {fallback}")
+            await memory.add_message(session_id, "assistant", f"[{object_title}]: {fallback}")
 
     def _build_object_system_prompt(self, object_persona: str, object_title: str) -> str:
         """Build system prompt for an object persona."""

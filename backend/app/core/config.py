@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./data/app.db"
 
+    # Redis
+    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_USE_FOR_MEMORY: bool = True  # Use Redis for conversation storage (fallback to in-memory if False)
+
     # LLM - Azure AI Foundry / DeepSeek
     AZURE_AI_ENDPOINT: str = ""
     AZURE_AI_CREDENTIAL: str = ""  # API key

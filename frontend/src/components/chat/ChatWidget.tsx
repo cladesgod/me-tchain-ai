@@ -15,6 +15,11 @@ export function ChatWidget() {
   const { messages, isConnected, sendMessage, typingPersona } = useChatStore()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Debug: Log connection state
+  useEffect(() => {
+    console.log('[ChatWidget] isConnected:', isConnected)
+  }, [isConnected])
+
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -116,7 +121,8 @@ export function ChatWidget() {
         </div>
 
         {/* Input */}
-        <ChatInput onSend={sendMessage} disabled={!isConnected} />
+        {/* DEBUG: Force enable for testing */}
+        <ChatInput onSend={sendMessage} disabled={false} />
       </div>
     </>
   )

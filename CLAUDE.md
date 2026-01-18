@@ -17,17 +17,21 @@ Bu dosya, Claude AI'ın bu projeyi anlaması ve etkili bir şekilde katkıda bul
 - **AI/LLM:** LangChain, LangGraph, LangSmith
 - **LLM Provider:** Microsoft AI Foundry → DeepSeek
 - **Database:** SQLite (dev) / PostgreSQL (prod)
+- **Rate Limiting:** SlowAPI
+- **Caching:** Redis (conversation storage)
 - **Testing:** pytest, pytest-asyncio
 
 ### Frontend
-- **Framework:** React 18 + TypeScript
+- **Framework:** React 18 + TypeScript (Strict Mode)
 - **Build Tool:** Vite
 - **Styling:** Tailwind CSS
 - **3D/Animation:** Three.js, Framer Motion
 - **Charts:** D3.js
 - **State:** Zustand
+- **Validation:** Zod (schema validation)
 - **i18n:** i18next (en/tr)
 - **Testing:** Vitest, Playwright
+- **Code Quality:** ESLint, Prettier, Husky, lint-staged
 
 ## Proje Yapısı
 
@@ -36,7 +40,7 @@ me-tchain-ai/
 ├── backend/           # FastAPI backend
 │   ├── app/
 │   │   ├── api/       # API endpoints (versioned)
-│   │   ├── core/      # Config, security, logging
+│   │   ├── core/      # Config, security, logging, websocket, rate_limit
 │   │   ├── models/    # Domain models & Pydantic schemas
 │   │   ├── services/  # Business logic (chatbot, llm)
 │   │   └── repositories/  # Data access layer
@@ -44,13 +48,16 @@ me-tchain-ai/
 │   │   ├── persona.md     # Ana chatbot kişiliği
 │   │   ├── personas/      # Persona varyasyonları (educator, engineer, researcher, speaker)
 │   │   └── objects/       # Object persona markdown dosyaları
-│   └── tests/         # Unit, integration, e2e tests
+│   ├── tests/         # Unit, integration, e2e tests
+│   ├── IMPROVEMENTS_IMPLEMENTED.md  # Backend iyileştirmeleri dökümantasyonu
+│   └── requirements.txt   # Python dependencies (slowapi, redis eklendi)
 │
 ├── frontend/          # React frontend
 │   ├── src/
 │   │   ├── components/  # UI components by feature
 │   │   ├── pages/       # Page components
 │   │   ├── hooks/       # Custom React hooks
+│   │   ├── lib/         # Configuration & validation (Zod schemas)
 │   │   ├── services/    # API client, WebSocket
 │   │   ├── store/       # Zustand stores
 │   │   ├── types/       # TypeScript types
@@ -83,6 +90,10 @@ pnpm dev          # Development server (port 5173)
 pnpm build        # Production build
 pnpm test         # Run tests
 pnpm lint         # Lint check
+pnpm lint:fix     # Fix lint errors
+pnpm type-check   # TypeScript check
+pnpm validate     # Lint + type-check (CI/CD)
+pnpm format       # Prettier format
 ```
 
 ## Career Game (Ana Feature)
@@ -134,7 +145,10 @@ pnpm lint         # Lint check
 
 | Dosya | Açıklama |
 |-------|----------|
-| `backend/app/main.py` | FastAPI app factory |
+| `backend/app/main.py` | FastAPI app factory + lifecycle management |
+| `backend/app/core/websocket.py` | **YENİ:** Gelişmiş WebSocket connection manager |
+| `backend/app/core/rate_limit.py` | **YENİ:** Rate limiting konfigürasyonu |
+| `backend/app/services/llm/client.py` | **YENİ:** Thread-safe LLM client singleton |
 | `backend/app/services/chatbot/agent.py` | LangGraph chatbot agent |
 | `backend/app/services/chatbot/object_persona_loader.py` | Object persona yükleyici |
 | `backend/app/services/llm/factory.py` | LLM factory pattern |
@@ -142,10 +156,15 @@ pnpm lint         # Lint check
 | `backend/data/persona.md` | Chatbot kişiliği ve bilgileri |
 | `backend/data/personas/` | Persona varyasyonları (educator, engineer, researcher, speaker) |
 | `backend/data/objects/` | Object persona markdown dosyaları |
-| `frontend/src/App.tsx` | React root component |
+| `backend/IMPROVEMENTS_IMPLEMENTED.md` | **YENİ:** Backend iyileştirmeleri dökümantasyonu |
+| `frontend/src/App.tsx` | React root component (Error Boundaries ile) |
 | `frontend/src/components/chat/ChatWidget.tsx` | Chatbot UI |
 | `frontend/src/components/game/ObjectDetailPanel.tsx` | Career Game side panel (info + chat) |
 | `frontend/src/components/game/TimelineObject.tsx` | 3D timeline objeleri |
+| `frontend/src/components/ui/ErrorBoundary.tsx` | React Error Boundaries (hata yakalama) |
+| `frontend/src/lib/config.ts` | Merkezi config (env validation) |
+| `frontend/src/lib/schemas.ts` | Zod validation schemas (WebSocket mesajları) |
+| `frontend/src/hooks/useObjectChat.ts` | Object chat WebSocket hook |
 | `frontend/src/store/gameStore.ts` | Career Game Zustand store |
 | `frontend/src/store/chatStore.ts` | Chat widget state |
 | `frontend/src/types/game.ts` | Career Game TypeScript tipleri |
@@ -169,12 +188,75 @@ pnpm lint         # Lint check
 - Custom hooks for logic
 - Barrel exports (index.ts)
 - Tailwind for styling (no inline styles)
+- Error Boundaries for error handling
+- Zod schemas for runtime validation
+- Centralized config in `lib/config.ts`
+
+### Pre-commit Hooks
+- **Husky:** Git hooks yönetimi
+- **lint-staged:** Commit öncesi otomatik lint + format
+- Commit yapıldığında: ESLint fix + Prettier format otomatik çalışır
+
+## Backend İyileştirmeleri (2026-01-19)
+
+### ✅ Faz 1: Kritik Güvenlik ve Bellek Sorunları (TAMAMLANDI)
+
+1. **WebSocket Memory Leak Düzeltildi**
+   - Connection cleanup ile TTL-based (1 saat) timeout
+   - Ping/pong heartbeat (30 saniyede bir)
+   - Bağlantı limitleri: 5/client, 1000/toplam
+   - Arka plan temizleme görevi (60 saniyede bir)
+   - Dosya: `backend/app/core/websocket.py`
+
+2. **Thread-Safe LLM Client Singleton**
+   - Tüm istekler için tek paylaşılan LLM client
+   - Async lock ile race condition koruması
+   - Uygulama başlangıcında initialize edilir
+   - Dosya: `backend/app/services/llm/client.py`
+
+3. **Rate Limiting Eklendi**
+   - SlowAPI ile 100 istek/dakika/IP limiti
+   - ASGI middleware (yüksek performans)
+   - Proxy desteği (X-Forwarded-For)
+   - Dosya: `backend/app/core/rate_limit.py`
+
+### ✅ Faz 2: Performans ve Mimari İyileştirmeleri (TAMAMLANDI)
+
+4. **Redis-Based Conversation Storage**
+   - Persistent conversation storage (TTL: 1 saat)
+   - Otomatik fallback (Redis yoksa in-memory)
+   - Async API, horizontal scaling ready
+   - Dosyalar: `backend/app/services/chatbot/redis_memory.py`, `memory_factory.py`
+
+5. **Dependency Injection Pattern**
+   - Protocol-based design (`ConversationMemoryProtocol`)
+   - Factory pattern ile backend seçimi
+   - Test edilebilir, decoupled mimari
+   - Dosya: `backend/app/services/chatbot/memory_factory.py`
+
+6. **Error Handling & Circuit Breaker**
+   - Circuit breaker pattern (3 state: CLOSED/OPEN/HALF_OPEN)
+   - Retry logic (Tenacity ile exponential backoff)
+   - LLM: 5 failure threshold, 60s recovery
+   - Redis: 3 failure threshold, 30s recovery
+   - Dosya: `backend/app/core/resilience.py`
+
+**Detaylar:** `backend/IMPROVEMENTS_IMPLEMENTED.md`
+
+### ⏳ Bekleyen İyileştirmeler (Faz 3-4)
+
+- Rate limiting Redis backend (şu an in-memory)
+- LangGraph StateGraph migration
+- Observability (Prometheus metrics, tracing)
+- Kapsamlı test suite
+
+---
 
 ## API Endpoints
 
 ```
 GET  /api/v1/health          # Health check
-WS   /api/v1/chat            # WebSocket chatbot
+WS   /api/v1/chat            # WebSocket chatbot (rate limited, health monitored)
 GET  /api/v1/contact         # Contact info (email, LinkedIn, GitHub, website)
 ```
 
@@ -278,6 +360,53 @@ Persona detayları: `backend/data/persona.md`
 3. **Tests:** Her yeni feature için test yaz
 4. **Async:** Backend'de tüm I/O işlemleri async olmalı
 5. **Error Handling:** Custom exceptions kullan, generic catch yapma
+6. **Validation:** WebSocket mesajları için Zod schema kullan (`lib/schemas.ts`)
+7. **Config:** Environment variables için merkezi config kullan (`lib/config.ts`)
+8. **Error Boundaries:** Yeni sayfalar/componentler için Error Boundary ekle
+
+## Error Boundaries & Validation
+
+### Error Boundaries
+React Error Boundaries hataları yakalar ve güzel bir fallback UI gösterir:
+
+```tsx
+import { ErrorBoundary, PageErrorFallback } from '@/components/ui'
+
+<ErrorBoundary fallback={<PageErrorFallback />}>
+  <MyComponent />
+</ErrorBoundary>
+```
+
+**Mevcut Fallback'ler:**
+- `PageErrorFallback` - Sayfa hataları için
+- `GameErrorFallback` - 3D oyun hataları için
+
+### WebSocket Validation
+Zod ile WebSocket mesajlarını validate et:
+
+```tsx
+import { parseWebSocketMessage } from '@/lib/schemas'
+
+socket.onmessage = (event) => {
+  const message = parseWebSocketMessage(event.data)
+  if (!message) return // Invalid message
+
+  switch (message.type) {
+    case 'system': // ...
+    case 'stream': // ...
+  }
+}
+```
+
+### Centralized Config
+Environment variables için merkezi config:
+
+```tsx
+import { WS_URL, WS_CHAT_ENDPOINT, IS_DEV } from '@/lib/config'
+
+// Artık her yerde aynı URL kullanılır
+const socket = new WebSocket(WS_CHAT_ENDPOINT)
+```
 
 ## ⚠️ Geçmişte Yapılan Hatalar (Tekrarlanmaması İçin)
 
@@ -361,6 +490,83 @@ const handleKeyDown = (event: KeyboardEvent) => {
   // ... normal hareket logic
 }
 ```
+
+---
+
+### 5. WebSocket CORS ve Environment Variable Cache Sorunu
+**Tarih:** 2026-01-19
+**Dosyalar:** `backend/app/main.py`, `frontend/src/lib/config.ts`, `backend/.env`
+
+**Sorun:** Chatbot WebSocket bağlantısı kurulamıyor, textarea disabled durumda. Browser console'da farklı URL'ler görünüyor.
+
+**Alt Problemler:**
+1. **CORS Headers:** WebSocket handshake başarısız oluyor
+2. **Eksik persona.md:** Backend `persona_file_not_found` hatası veriyor
+3. **Redis Config:** Backend Redis'e bağlanmaya çalışıyor ama Redis yok
+4. **Port Mismatch:** Farklı `.env` dosyalarında farklı port numaraları
+5. **Vite Cache:** Browser cached JavaScript'te eski environment variables kalıyor
+
+**Çözümler:**
+
+**1. CORS Headers Ekleme:**
+```python
+# backend/app/main.py
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins_list,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "Accept",
+        # WebSocket headers - ÖNEMLİ!
+        "Sec-WebSocket-Key",
+        "Sec-WebSocket-Version",
+        "Sec-WebSocket-Extensions",
+        "Sec-WebSocket-Protocol",
+        "Connection",
+        "Upgrade",
+    ],
+)
+```
+
+**2. Persona.md Oluşturma:**
+```bash
+# backend/data/persona.md dosyası yoksa engineer.md'den kopyala
+cp backend/data/personas/engineer.md backend/data/persona.md
+```
+
+**3. Redis Devre Dışı Bırakma:**
+```bash
+# backend/.env
+REDIS_USE_FOR_MEMORY=false
+```
+
+**4. Port Tutarlılığı:**
+Tüm `.env` dosyalarında aynı port kullan:
+```bash
+# backend/.env ve root .env
+API_PORT=8000
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+```
+
+**5. Vite Cache Temizleme ve Explicit Env Variables:**
+```bash
+# Cache temizle
+cd frontend
+rm -rf node_modules/.vite dist .vite
+
+# Explicit env variables ile başlat
+VITE_API_URL=http://localhost:8000 VITE_WS_URL=ws://localhost:8000 pnpm dev
+```
+
+**Ders:**
+- WebSocket CORS için özel headers gerekli
+- Vite aggressive caching yapıyor - değişiklikler için cache temizliği şart
+- Explicit env variables ile başlatmak en güvenilir yöntem
+- Multiple `.env` dosyaları senkronize tutulmalı
 
 ## MCP Araçları Kullanım Kuralları
 

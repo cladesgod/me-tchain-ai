@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+# Run lint-staged for frontend
+cd frontend && pnpm exec lint-staged
