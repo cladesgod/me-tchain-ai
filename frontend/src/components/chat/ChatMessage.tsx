@@ -1,3 +1,4 @@
+import ReactMarkdown from 'react-markdown'
 import { cn } from '@/utils'
 import { PersonaMiniAvatar } from './PersonaMiniAvatar'
 import type { PersonaType } from '@/store/chatStore'
@@ -36,9 +37,16 @@ const personaColors = {
   },
 }
 
+// Strip [Persona]: prefix that LLM sometimes adds
+function cleanContent(content: string): string {
+  // Remove patterns like "[Speaker]: ", "[Engineer]: ", etc.
+  return content.replace(/^\[(?:Engineer|Researcher|Speaker|Educator)\]:\s*/i, '')
+}
+
 export function ChatMessage({ content, role, persona, isStreaming }: ChatMessageProps) {
   const isUser = role === 'user'
   const personaConfig = persona ? personaColors[persona] : null
+  const displayContent = isUser ? content : cleanContent(content)
 
   return (
     <div className={cn('flex gap-2', isUser ? 'justify-end' : 'justify-start')}>
@@ -69,7 +77,13 @@ export function ChatMessage({ content, role, persona, isStreaming }: ChatMessage
                 : 'bg-gray-800/50 text-gray-200 border border-gray-700 rounded-bl-md'
           )}
         >
-          <p className="text-sm whitespace-pre-wrap">{content}</p>
+          {isUser ? (
+            <p className="text-sm whitespace-pre-wrap">{displayContent}</p>
+          ) : (
+            <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ul]:pl-4 [&_ul]:list-disc [&_ol]:my-1 [&_ol]:pl-4 [&_ol]:list-decimal [&_strong]:font-bold [&_strong]:text-white [&_em]:italic [&_code]:bg-gray-700/50 [&_code]:px-1 [&_code]:rounded [&_h1]:text-base [&_h1]:font-bold [&_h1]:mt-2 [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:mt-2 [&_h3]:text-sm [&_h3]:font-medium [&_h3]:mt-1">
+              <ReactMarkdown>{displayContent || ''}</ReactMarkdown>
+            </div>
+          )}
           {isStreaming && (
             <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse rounded-sm" />
           )}

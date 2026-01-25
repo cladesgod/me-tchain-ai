@@ -12,18 +12,25 @@ import type { PersonaType } from '@/store/chatStore'
 export function ChatWidget() {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const { messages, isConnected, sendMessage, typingPersona } = useChatStore()
+  const { messages, isConnected, sendMessage, typingPersona, drainBuffer, typewriterBuffer } = useChatStore()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Debug: Log connection state
+  // Typewriter effect - drain buffer at consistent speed
   useEffect(() => {
-    console.log('[ChatWidget] isConnected:', isConnected)
-  }, [isConnected])
+    const CHARS_PER_TICK = 2
+    const TICK_INTERVAL_MS = 20 // 100 chars/sec at 2 chars per 20ms
+
+    const interval = setInterval(() => {
+      drainBuffer(CHARS_PER_TICK)
+    }, TICK_INTERVAL_MS)
+
+    return () => clearInterval(interval)
+  }, [drainBuffer])
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, typingPersona])
+  }, [messages, typingPersona, typewriterBuffer])
 
   // Close panel on Escape key
   useEffect(() => {

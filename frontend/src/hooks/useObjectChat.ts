@@ -1,13 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import type { TimelineObject } from '@/types/game'
+import type { TimelineObject, ObjectMessage } from '@/types/game'
+import { WS_CHAT_ENDPOINT } from '@/lib/config'
 
-interface ChatMessage {
-  id: string
-  content: string
-  role: 'user' | 'assistant'
-  timestamp: Date
-  isStreaming?: boolean
-}
+// Re-export ObjectMessage as ChatMessage for backward compatibility
+type ChatMessage = ObjectMessage
 
 interface UseObjectChatOptions {
   object: TimelineObject | null
@@ -140,12 +136,9 @@ export function useObjectChat(options: UseObjectChatOptions): UseObjectChatRetur
     setIsStreaming(false)
 
     // Create WebSocket URL
-    const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
     // Use English title for the URL
     const title = typeof object.title === 'string' ? object.title : object.title.en
-    const wsUrl = `${WS_URL}/api/v1/chat?object_id=${object.objectPersonaId}&object_title=${encodeURIComponent(
-      title
-    )}`
+    const wsUrl = `${WS_CHAT_ENDPOINT}?object_id=${object.objectPersonaId}&object_title=${encodeURIComponent(title)}`
 
     const socket = new WebSocket(wsUrl)
     wsRef.current = socket

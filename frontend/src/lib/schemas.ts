@@ -18,6 +18,7 @@ export const SystemMessageSchema = z.object({
 export const TypingMessageSchema = z.object({
   type: z.literal('typing'),
   persona: z.string().optional(),
+  object_id: z.string().optional(),
 })
 
 // Streaming content
@@ -25,11 +26,15 @@ export const StreamMessageSchema = z.object({
   type: z.literal('stream'),
   content: z.string(),
   persona: z.string().optional(),
+  object_id: z.string().optional(),
 })
 
 // Done signal
 export const DoneMessageSchema = z.object({
   type: z.literal('done'),
+  persona: z.string().optional(),
+  object_id: z.string().optional(),
+  content: z.string().optional(),
 })
 
 // Error message
@@ -83,29 +88,4 @@ export function parseWebSocketMessage(data: unknown): WebSocketMessage | null {
     }
     return null
   }
-}
-
-/**
- * URL Validation
- */
-export const ExternalLinkSchema = z.string().url().refine(
-  (url) => {
-    try {
-      const parsed = new URL(url)
-      return ['http:', 'https:'].includes(parsed.protocol)
-    } catch {
-      return false
-    }
-  },
-  { message: 'URL must use http or https protocol' }
-)
-
-/**
- * Safely validate an external URL
- *
- * @param url - URL to validate
- * @returns true if URL is safe to open
- */
-export function isValidExternalUrl(url: string): boolean {
-  return ExternalLinkSchema.safeParse(url).success
 }

@@ -13,6 +13,8 @@ import { X, ExternalLink, MessageCircle, Calendar, Tag, ArrowLeft, Send } from '
 import ReactMarkdown from 'react-markdown'
 import { useGameStore } from '@/store/gameStore'
 import { cn } from '@/utils'
+import { WS_CHAT_ENDPOINT } from '@/lib/config'
+import type { ObjectMessage } from '@/types/game'
 
 // Type icon mapping
 const TYPE_ICONS: Record<string, string> = {
@@ -35,17 +37,6 @@ const TYPE_LABELS: Record<string, { en: string; tr: string }> = {
   talk: { en: 'Talk', tr: 'Konuşma' },
   milestone: { en: 'Milestone', tr: 'Dönüm Noktası' },
 }
-
-// Chat message interface
-interface ObjectMessage {
-  id: string
-  content: string
-  role: 'user' | 'assistant'
-  timestamp: Date
-  isStreaming?: boolean
-}
-
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/v1/chat'
 
 type PanelMode = 'info' | 'chat'
 
@@ -157,7 +148,7 @@ export function ObjectDetailPanel() {
 
     // Build WebSocket URL with object_id parameter
     const objectTitle = selectedObject.title[lang]
-    const wsUrl = `${WS_URL}?object_id=${encodeURIComponent(selectedObject.objectPersonaId)}&object_title=${encodeURIComponent(objectTitle)}`
+    const wsUrl = `${WS_CHAT_ENDPOINT}?object_id=${encodeURIComponent(selectedObject.objectPersonaId)}&object_title=${encodeURIComponent(objectTitle)}`
 
     const socket = new WebSocket(wsUrl)
     wsRef.current = socket

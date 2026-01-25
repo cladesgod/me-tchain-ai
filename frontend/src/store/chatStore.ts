@@ -13,6 +13,12 @@ interface Message {
   isStreaming?: boolean
 }
 
+// Buffer item with persona context
+interface BufferItem {
+  content: string
+  persona: PersonaType | null
+}
+
 interface ChatState {
   messages: Message[]
   isConnected: boolean
@@ -21,6 +27,8 @@ interface ChatState {
   typingPersona: PersonaType | null
   activePersonas: PersonaType[]
   currentStreamingPersona: PersonaType | null
+  // Typewriter buffer for smooth streaming - stores content with persona
+  typewriterBuffer: BufferItem[]
 
   // Actions
   connect: () => void
@@ -28,8 +36,12 @@ interface ChatState {
   sendMessage: (content: string) => void
   addMessage: (message: Message) => void
   updateLastMessage: (content: string, persona?: PersonaType) => void
-  setStreaming: (isStreaming: boolean) => void
+  setStreaming: (isStreaming: boolean, persona?: PersonaType) => void
   setTypingPersona: (persona: PersonaType | null) => void
+  // Typewriter actions
+  appendToBuffer: (content: string, persona: PersonaType | null) => void
+  drainBuffer: (charsPerTick: number) => void
+  clearBuffer: () => void
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -40,6 +52,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   typingPersona: null,
   activePersonas: ['engineer', 'researcher', 'speaker', 'educator'],
   currentStreamingPersona: null,
+  typewriterBuffer: [],
 
   connect: () => {
     const { ws } = get()
@@ -74,7 +87,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           })
           break
 
-        case 'typing':
+        case 'typing': {
           // Persona is typing
           get().setTypingPersona(message.persona as PersonaType | null)
           // Add placeholder message for this persona if not already streaming
@@ -91,18 +104,38 @@ export const useChatStore = create<ChatState>((set, get) => ({
             set({ currentStreamingPersona: message.persona as PersonaType })
           }
           break
+        }
 
         case 'stream':
-          // Streaming content from persona
+          // Streaming content from persona - add to buffer for smooth typewriter
           get().setTypingPersona(null)
-          get().updateLastMessage(message.content, message.persona as PersonaType | undefined)
+          get().appendToBuffer(message.content, message.persona as PersonaType | null)
           break
 
-        case 'done':
-          // Persona finished
-          get().setStreaming(false)
-          set({ currentStreamingPersona: null, typingPersona: null })
+        case 'done': {
+          // Persona finished - wait for buffer to drain before marking complete
+          const finishedPersona = message.persona as PersonaType | undefined
+          const checkBufferAndFinish = () => {
+            // Check if buffer still has items for this persona
+            const hasBufferForPersona = get().typewriterBuffer.some(
+              item => item.persona === finishedPersona
+            )
+            if (!hasBufferForPersona) {
+              // Mark THIS persona's message as done streaming
+              get().setStreaming(false, finishedPersona)
+              // Only clear currentStreamingPersona if it matches
+              if (get().currentStreamingPersona === finishedPersona) {
+                set({ currentStreamingPersona: null })
+              }
+              set({ typingPersona: null })
+            } else {
+              // Buffer not empty yet, check again
+              setTimeout(checkBufferAndFinish, 50)
+            }
+          }
+          checkBufferAndFinish()
           break
+        }
 
         case 'error':
           get().addMessage({
@@ -164,40 +197,59 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   updateLastMessage: (content: string, persona?: PersonaType) => {
     set((state) => {
-      // Find the last message from this persona (if specified) or last assistant message
-      let targetIndex = state.messages.length - 1
+      // Find the last streaming message from this persona
+      let targetIndex = -1
+
       if (persona) {
+        // Find message for specific persona
         for (let i = state.messages.length - 1; i >= 0; i--) {
           if (state.messages[i].role === 'assistant' && state.messages[i].persona === persona && state.messages[i].isStreaming) {
             targetIndex = i
             break
           }
         }
-      }
-      const lastMessage = state.messages[targetIndex]
-      if (lastMessage && lastMessage.role === 'assistant') {
-        // Create a new array with a new message object to avoid mutation
-        const messages = [...state.messages]
-        messages[targetIndex] = {
-          ...lastMessage,
-          content: lastMessage.content + content
+      } else {
+        // Fallback: find any streaming assistant message
+        for (let i = state.messages.length - 1; i >= 0; i--) {
+          if (state.messages[i].role === 'assistant' && state.messages[i].isStreaming) {
+            targetIndex = i
+            break
+          }
         }
-        return { messages }
       }
-      return state
+
+      // Only update if we found a matching message
+      if (targetIndex === -1) return state
+
+      const targetMessage = state.messages[targetIndex]
+      const messages = [...state.messages]
+      messages[targetIndex] = {
+        ...targetMessage,
+        content: targetMessage.content + content
+      }
+      return { messages }
     })
   },
 
-  setStreaming: (isStreaming: boolean) => {
+  setStreaming: (isStreaming: boolean, persona?: PersonaType) => {
     set((state) => {
       if (state.messages.length === 0) return state
-      const lastMessage = state.messages[state.messages.length - 1]
-      if (lastMessage) {
-        // Create a new array with a new message object to avoid mutation
-        const messages = [...state.messages.slice(0, -1), {
-          ...lastMessage,
-          isStreaming
-        }]
+
+      // Find the message for the specific persona, or fall back to last message
+      let targetIndex = state.messages.length - 1
+      if (persona) {
+        for (let i = state.messages.length - 1; i >= 0; i--) {
+          if (state.messages[i].role === 'assistant' && state.messages[i].persona === persona) {
+            targetIndex = i
+            break
+          }
+        }
+      }
+
+      const targetMessage = state.messages[targetIndex]
+      if (targetMessage && targetMessage.role === 'assistant') {
+        const messages = [...state.messages]
+        messages[targetIndex] = { ...targetMessage, isStreaming }
         return { messages }
       }
       return state
@@ -206,6 +258,39 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setTypingPersona: (persona: PersonaType | null) => {
     set({ typingPersona: persona })
+  },
+
+  // Typewriter buffer methods for smooth streaming
+  appendToBuffer: (content: string, persona: PersonaType | null) => {
+    set((state) => ({
+      typewriterBuffer: [...state.typewriterBuffer, { content, persona }]
+    }))
+  },
+
+  drainBuffer: (charsPerTick: number) => {
+    const { typewriterBuffer } = get()
+    if (typewriterBuffer.length === 0) return
+
+    // Get the first buffer item
+    const [first, ...rest] = typewriterBuffer
+
+    if (first.content.length <= charsPerTick) {
+      // Drain entire item
+      set({ typewriterBuffer: rest })
+      get().updateLastMessage(first.content, first.persona ?? undefined)
+    } else {
+      // Partial drain - take chars and keep remainder
+      const chars = first.content.slice(0, charsPerTick)
+      const remaining = first.content.slice(charsPerTick)
+      set({
+        typewriterBuffer: [{ content: remaining, persona: first.persona }, ...rest]
+      })
+      get().updateLastMessage(chars, first.persona ?? undefined)
+    }
+  },
+
+  clearBuffer: () => {
+    set({ typewriterBuffer: [] })
   },
 }))
 

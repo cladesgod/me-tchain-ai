@@ -4,6 +4,7 @@ LangGraph Chat Agent
 The main chatbot agent using LangGraph for orchestration.
 """
 
+import asyncio
 from typing import AsyncGenerator, Optional
 
 from app.core.logging import get_logger
@@ -136,7 +137,9 @@ class ChatAgent:
         self, user_message: str, session_id: str, selected_persona: Optional[str] = None
     ) -> AsyncGenerator[dict, None]:
         """
-        Stream multi-persona responses (WhatsApp group style).
+        Stream multi-persona responses in PARALLEL (WhatsApp group style).
+
+        All personas stream simultaneously for faster total response time.
 
         Args:
             user_message: The user's message
@@ -158,7 +161,7 @@ class ChatAgent:
         await memory.add_message(session_id, "user", user_message)
 
         try:
-            # Use LLM router to determine which persona(s) should respond and order
+            # Use LLM router to determine which persona(s) should respond
             persona_responses = await route_question(user_message)
 
             # Extract persona names from router response
@@ -172,49 +175,90 @@ class ChatAgent:
                 routing_details=[{"persona": pr.persona, "order": pr.order, "reasoning": pr.reasoning} for pr in persona_responses],
             )
 
-            # For each relevant persona, generate response sequentially
+            # Queue to collect chunks from all persona streams
+            chunk_queue: asyncio.Queue[dict] = asyncio.Queue()
+
+            # Track responses for memory
+            persona_responses_text: dict[str, str] = {p: "" for p in relevant_personas}
+
+            async def stream_persona(persona_type: str) -> None:
+                """Stream a single persona's response to the queue."""
+                try:
+                    # Send typing indicator
+                    await chunk_queue.put({"type": "typing", "persona": persona_type, "content": ""})
+
+                    # Load persona-specific prompt
+                    persona_content = load_persona_by_type(persona_type)
+                    persona_prompt = get_system_prompt(persona_content)
+
+                    # Get LLM
+                    llm = await get_llm_client()
+
+                    # Build messages with persona-specific system prompt
+                    messages = [{"role": "system", "content": persona_prompt}]
+                    history = await memory.get_history(session_id, limit=10)
+                    messages.extend(history)
+
+                    # Stream response
+                    async for chunk in llm.astream(messages):
+                        if chunk.content:
+                            persona_responses_text[persona_type] += chunk.content
+                            await chunk_queue.put({
+                                "type": "stream",
+                                "persona": persona_type,
+                                "content": chunk.content,
+                            })
+
+                    # Mark done
+                    await chunk_queue.put({"type": "done", "persona": persona_type, "content": ""})
+
+                    logger.info(
+                        "persona_response_completed",
+                        session_id=session_id,
+                        persona=persona_type,
+                        length=len(persona_responses_text[persona_type]),
+                    )
+
+                except Exception as e:
+                    logger.error(
+                        "persona_stream_error",
+                        session_id=session_id,
+                        persona=persona_type,
+                        error=str(e),
+                    )
+                    # Send error as done
+                    await chunk_queue.put({"type": "done", "persona": persona_type, "content": ""})
+
+            # Start all persona streams concurrently
+            tasks = [asyncio.create_task(stream_persona(p)) for p in relevant_personas]
+
+            # Track completed personas
+            completed_count = 0
+            total_personas = len(relevant_personas)
+
+            # Yield chunks as they arrive until all personas complete
+            while completed_count < total_personas:
+                try:
+                    # Wait for next chunk with timeout
+                    chunk = await asyncio.wait_for(chunk_queue.get(), timeout=60.0)
+                    yield chunk
+
+                    # Track completions
+                    if chunk["type"] == "done":
+                        completed_count += 1
+
+                except asyncio.TimeoutError:
+                    logger.warning("multi_persona_stream_timeout", session_id=session_id)
+                    break
+
+            # Wait for all tasks to finish (cleanup)
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Build combined response for memory
             full_combined_response = ""
-
             for persona_type in relevant_personas:
-                # Send typing indicator
-                yield {"type": "typing", "persona": persona_type, "content": ""}
-
-                # Load persona-specific prompt
-                persona_content = load_persona_by_type(persona_type)
-                persona_prompt = get_system_prompt(persona_content)
-
-                # Get LLM
-                llm = await get_llm_client()
-
-                # Build messages with persona-specific system prompt
-                messages = [{"role": "system", "content": persona_prompt}]
-                history = await memory.get_history(session_id, limit=10)
-                messages.extend(history)
-
-                # Stream response for this persona
-                persona_response = ""
-                async for chunk in llm.astream(messages):
-                    if chunk.content:
-                        persona_response += chunk.content
-                        yield {
-                            "type": "stream",
-                            "persona": persona_type,
-                            "content": chunk.content,
-                        }
-
-                # Mark this persona done
-                yield {"type": "done", "persona": persona_type, "content": ""}
-
-                # Accumulate for memory
                 persona_label = persona_type.capitalize()
-                full_combined_response += f"[{persona_label}]: {persona_response}\n\n"
-
-                logger.info(
-                    "persona_response_completed",
-                    session_id=session_id,
-                    persona=persona_type,
-                    length=len(persona_response),
-                )
+                full_combined_response += f"[{persona_label}]: {persona_responses_text[persona_type]}\n\n"
 
             # Add combined response to memory
             await memory.add_message(session_id, "assistant", full_combined_response.strip())
@@ -222,7 +266,7 @@ class ChatAgent:
             logger.info(
                 "multi_persona_stream_completed",
                 session_id=session_id,
-                total_personas=len(relevant_personas),
+                total_personas=total_personas,
             )
 
         except Exception as e:
@@ -369,6 +413,7 @@ Remember: You are NOT an assistant. You ARE the object speaking about yourself!
             "or contact me directly at timucinutkan@gmail.com."
         )
 
-    def clear_history(self, session_id: str) -> None:
+    async def clear_history(self, session_id: str) -> None:
         """Clear conversation history for a session."""
-        self.memory.clear(session_id)
+        memory = await self._get_memory()
+        await memory.clear(session_id)
